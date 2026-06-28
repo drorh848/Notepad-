@@ -237,6 +237,7 @@ let db=null,auth=null,notes={},bin={},online=false,editing=null;
 let undoStack=[]; // snapshots: {notes,bin}
 let ENCKEY=null;  // encryption password (in memory only)
 const ENC_DEVICE_KEY="notepad_enc_pw"; // local-only storage of enc password on this device
+const LOGIN_DEVICE_KEY="notepad_login_pw"; // local-only storage of login password on this device
 
 /* ---------- encryption (AES via CryptoJS) ---------- */
 function encStr(plain){
@@ -327,6 +328,7 @@ function doLogin(){
     .then(()=>{
       localStorage.setItem("notepad_email",email);
       localStorage.setItem(ENC_DEVICE_KEY,enc); // remember enc pw on this device
+      localStorage.setItem(LOGIN_DEVICE_KEY,pass); // remember login pw on this device only
       hideLogin();startData();
     })
     .catch(e=>{
@@ -341,6 +343,7 @@ function doLogin(){
 function doLogout(){
   if(!confirm("להתנתק? תצטרך להזין שוב אימייל וסיסמת הצפנה."))return;
   localStorage.removeItem(ENC_DEVICE_KEY); // forget enc pw
+  localStorage.removeItem(LOGIN_DEVICE_KEY); // forget login pw
   auth.signOut().finally(()=>location.reload());
 }
 
@@ -353,13 +356,23 @@ function init(){
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     online=true;
     auth.onAuthStateChanged(u=>{
-      if(u && ENCKEY){ hideLogin(); startData(); }
-      else if(u && !ENCKEY){
-        // logged in from a previous session but we need the enc password again
-        showLogin("");
-        document.getElementById("liPass").placeholder="סיסמת התחברות (כבר מחובר)";
+      if(u){
+        // already authenticated on this device; load enc password silently
+        if(!ENCKEY)ENCKEY=localStorage.getItem(ENC_DEVICE_KEY)||null;
+        if(ENCKEY){ hideLogin(); startData(); }
+        else { showLogin(""); } // enc pw missing (e.g. after logout) -> ask
+      } else {
+        // no Firebase session -> try silent re-login with device-stored creds
+        const e=localStorage.getItem("notepad_email");
+        const p=localStorage.getItem(LOGIN_DEVICE_KEY);
+        const k=localStorage.getItem(ENC_DEVICE_KEY);
+        if(e&&p&&k){
+          ENCKEY=k;
+          auth.signInWithEmailAndPassword(e,p).catch(()=>{ENCKEY=null;showLogin("");});
+        } else {
+          showLogin("");
+        }
       }
-      else { showLogin(""); }
     });
   }catch(e){
     setState("מצב מקומי (ללא ענן)");online=false;

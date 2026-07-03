@@ -153,6 +153,7 @@
     <div class="right">
       <button class="icon-btn" id="undoBtn" title="בטל פעולה אחרונה" disabled>↩️</button>
       <button class="icon-btn" id="binBtn" title="סל מיחזור">🗑️<span class="badge" id="binBadge" style="display:none">0</span></button>
+      <button class="icon-btn" id="rekeyBtn" title="החלף סיסמת הצפנה">🔑</button>
       <button class="icon-btn" id="logoutBtn" title="התנתק">🔓</button>
     </div>
   </div>
@@ -358,6 +359,25 @@ function doLogout(){
   localStorage.removeItem(ENC_DEVICE_KEY); // forget enc pw
   localStorage.removeItem(LOGIN_DEVICE_KEY); // forget login pw
   auth.signOut().finally(()=>location.reload());
+}
+
+/* ---------- change encryption password (guarded by 5555) ---------- */
+function doRekey(){
+  const guard=prompt("החלפת סיסמת הצפנה.\nהקלד את סיסמת ההגנה לאישור:");
+  if(guard===null)return;
+  if(guard!==BIN_PASSWORD){toast("סיסמה שגויה ❌");return;}
+  if(!online||!ENCKEY||!dataStarted){toast("לא מחובר — נסה שוב אחרי שהנתונים נטענו");return;}
+  const n1=prompt("הזן סיסמת הצפנה חדשה:");
+  if(n1===null)return;
+  if(!n1.trim()){toast("סיסמה ריקה — בוטל");return;}
+  const n2=prompt("הזן שוב את הסיסמה החדשה לאימות:");
+  if(n2===null)return;
+  if(n1!==n2){toast("הסיסמאות לא תואמות ❌");return;}
+  if(!confirm("להחליף את סיסמת ההצפנה?\nכל הפתקים יוצפנו מחדש עם הסיסמה החדשה.\nבמכשירים אחרים תצטרך להתחבר מחדש עם הסיסמה החדשה."))return;
+  ENCKEY=n1;
+  pushAll(); // rewrites notes+bin to Firebase encrypted with the new key
+  localStorage.setItem(ENC_DEVICE_KEY,n1); // remember new enc pw on this device
+  toast("סיסמת ההצפנה הוחלפה ✓");
 }
 
 /* ---------- init ---------- */
@@ -622,6 +642,7 @@ document.getElementById("fText").addEventListener("input",e=>autoGrow(e.target))
 document.getElementById("liBtn").onclick=doLogin;
 document.getElementById("liEnc").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
 document.getElementById("logoutBtn").onclick=doLogout;
+document.getElementById("rekeyBtn").onclick=doRekey;
 
 init();
 </script>

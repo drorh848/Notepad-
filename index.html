@@ -2,7 +2,12 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#c8632d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="./manifest.json">
 <title>הפתקים שלי</title>
 <style>
   :root{
@@ -14,65 +19,82 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{margin:0;padding:0;}
   body{font-family:"Heebo",-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;-webkit-font-smoothing:antialiased;}
-  header{position:sticky;top:0;z-index:50;background:rgba(243,239,230,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:14px 16px 12px;}
-  .brand{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  header{position:sticky;top:0;z-index:50;background:rgba(243,239,230,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 14px 10px;padding-top:calc(12px + env(safe-area-inset-top));}
+  .brand{display:flex;align-items:center;gap:9px;margin-bottom:11px;}
   .brand .mark{width:34px;height:34px;border-radius:10px;flex:0 0 auto;background:linear-gradient(135deg,var(--accent),#e08a4d);display:grid;place-items:center;color:#fff;font-weight:800;font-size:18px;box-shadow:var(--shadow);}
-  .brand h1{font-size:20px;margin:0;font-weight:800;letter-spacing:-.3px;}
-  .brand .sub{font-size:12px;color:var(--muted);margin-top:1px;}
-  .brand .right{margin-inline-start:auto;display:flex;gap:8px;}
-  .icon-btn{border:1px solid var(--line);background:var(--card);border-radius:11px;width:40px;height:40px;display:grid;place-items:center;cursor:pointer;color:var(--ink);font-size:18px;box-shadow:var(--shadow);transition:.15s;position:relative;}
+  .brand h1{font-size:18px;margin:0;font-weight:800;letter-spacing:-.3px;}
+  .brand .sub{font-size:11px;color:var(--muted);margin-top:1px;}
+  .brand .right{margin-inline-start:auto;display:flex;gap:6px;}
+  .icon-btn{border:1px solid var(--line);background:var(--card);border-radius:11px;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;color:var(--ink);font-size:17px;box-shadow:var(--shadow);transition:.15s;position:relative;flex:0 0 auto;}
   .icon-btn:active{transform:scale(.94);}
   .icon-btn:disabled{opacity:.35;cursor:default;}
   .badge{position:absolute;top:-6px;left:-6px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:grid;place-items:center;padding:0 4px;}
-  /* undo button - bold & noticeable */
   #undoBtn{border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:700;}
   #undoBtn.flash{animation:flashUndo .9s ease 2;}
-  @keyframes flashUndo{0%,100%{box-shadow:0 0 0 0 rgba(200,99,45,.0);}40%{box-shadow:0 0 0 6px rgba(200,99,45,.35);}}
+  @keyframes flashUndo{0%,100%{box-shadow:0 0 0 0 rgba(200,99,45,0);}40%{box-shadow:0 0 0 6px rgba(200,99,45,.35);}}
   .search-wrap{position:relative;}
-  .search-wrap .si{position:absolute;inset-inline-start:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px;}
-  #search{width:100%;border:1.5px solid var(--line);border-radius:14px;background:var(--card);padding:13px 44px 13px 44px;font-size:16px;color:var(--ink);outline:none;transition:.15s;font-family:inherit;}
+  .search-wrap .si{position:absolute;inset-inline-start:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;}
+  #search{width:100%;border:1.5px solid var(--line);border-radius:14px;background:var(--card);padding:12px 42px 12px 42px;font-size:16px;color:var(--ink);outline:none;transition:.15s;font-family:inherit;}
   #search:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
-  .clear-s{position:absolute;inset-inline-end:12px;top:50%;transform:translateY(-50%);border:none;background:var(--line);color:var(--ink);width:24px;height:24px;border-radius:50%;cursor:pointer;display:none;font-size:14px;line-height:1;}
+  .clear-s{position:absolute;inset-inline-end:11px;top:50%;transform:translateY(-50%);border:none;background:var(--line);color:var(--ink);width:24px;height:24px;border-radius:50%;cursor:pointer;display:none;font-size:14px;line-height:1;}
   .clear-s.show{display:grid;place-items:center;}
-  .scount{font-size:12px;color:var(--muted);margin-top:8px;padding:0 2px;display:none;}
+  .scount{font-size:12px;color:var(--muted);margin-top:7px;padding:0 2px;display:none;}
   .scount.show{display:block;}
   main{padding:14px;max-width:760px;margin:0 auto;padding-bottom:120px;}
-  /* collapsed list rows */
+  /* breadcrumb */
+  .crumb{display:flex;align-items:center;gap:9px;margin-bottom:13px;}
+  .crumb .back{border:1px solid var(--line);background:var(--card);border-radius:10px;width:36px;height:36px;display:grid;place-items:center;cursor:pointer;font-size:17px;flex:0 0 auto;}
+  .crumb .nm{font-size:18px;font-weight:800;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .crumb .cnt{font-size:12px;color:var(--muted);font-weight:500;}
+  /* lists */
   .list{display:flex;flex-direction:column;gap:9px;}
-  .row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow);cursor:pointer;transition:.12s;}
+  .row{display:flex;align-items:center;gap:11px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 14px;box-shadow:var(--shadow);cursor:pointer;transition:.12s;user-select:none;}
   .row:active{transform:scale(.99);}
+  .row.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);}
   .row .dot{flex:0 0 auto;width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12);}
+  .row .chk{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;}
+  .row.sel .chk{background:var(--accent);border-color:var(--accent);}
+  .row.sel .chk::after{content:"\2713";color:#fff;font-size:13px;}
   .row .main{flex:1;min-width:0;}
   .row .ttl{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .ttl.empty{font-weight:500;color:var(--muted);}
-  .row .meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;}
+  .row .meta{font-size:12px;color:var(--muted);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   .row .hit{font-size:13px;color:#4a443c;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .row .chev{flex:0 0 auto;color:var(--muted);font-size:18px;}
-  .row .ic{font-size:14px;}
+  .row .gmenu{flex:0 0 auto;color:var(--muted);font-size:18px;padding:4px 6px;border:none;background:transparent;cursor:pointer;}
+  .gtag{display:inline-flex;align-items:center;gap:3px;background:var(--accent-soft);color:var(--accent);border-radius:7px;padding:1px 7px;font-size:11px;font-weight:700;}
+  .gicon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;flex:0 0 auto;}
   mark{background:var(--hl);color:inherit;border-radius:3px;padding:0 1px;}
-  .empty{text-align:center;color:var(--muted);padding:70px 20px;}
-  .empty .big{font-size:42px;margin-bottom:10px;}
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;}
+  .empty .big{font-size:40px;margin-bottom:10px;}
   .empty p{margin:4px 0;}
-  .fab{position:fixed;inset-inline-end:20px;bottom:24px;z-index:60;width:60px;height:60px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;font-size:30px;box-shadow:var(--shadow-lg);display:grid;place-items:center;transition:.15s;}
+  .fab{position:fixed;inset-inline-end:20px;bottom:calc(24px + env(safe-area-inset-bottom));z-index:60;width:60px;height:60px;border-radius:20px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;font-size:30px;box-shadow:var(--shadow-lg);display:grid;place-items:center;transition:.15s;}
   .fab:active{transform:scale(.9);}
+  /* select-mode bar */
+  .selbar{position:fixed;left:0;right:0;bottom:0;z-index:70;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -4px 20px rgba(43,39,34,.12);padding:11px 14px;padding-bottom:calc(11px + env(safe-area-inset-bottom));display:none;align-items:center;gap:9px;}
+  .selbar.show{display:flex;}
+  .selbar .n{font-weight:800;font-size:15px;flex:0 0 auto;}
+  .selbar .sp{flex:1;}
+  .sbtn{border:1px solid var(--line);background:var(--bg);border-radius:11px;padding:10px 13px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;color:var(--ink);white-space:nowrap;}
+  .sbtn.pri{background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;border:none;}
+  /* editor / modals */
   .overlay{position:fixed;inset:0;z-index:100;background:var(--card);display:none;}
   .overlay.show{display:block;}
   .sheet{background:var(--card);width:100%;height:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;animation:fadeIn .18s ease;}
   @keyframes fadeIn{from{opacity:.4;}to{opacity:1;}}
-  .sheet .top{padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);background:var(--card);z-index:2;flex:0 0 auto;}
+  .sheet .top{padding:13px 15px;padding-top:calc(13px + env(safe-area-inset-top));display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);background:var(--card);z-index:2;flex:0 0 auto;}
   .sheet .top .t{font-weight:800;font-size:17px;}
   .sheet .top .x{margin-inline-start:auto;}
   .sheet .pad{padding:16px;flex:1 1 auto;overflow-y:auto;}
   .field-title{width:100%;border:none;outline:none;background:transparent;font-size:21px;font-weight:700;color:var(--ink);font-family:inherit;padding:4px 2px;}
   .field-text{width:100%;border:none;outline:none;background:transparent;font-size:16px;color:var(--ink);font-family:inherit;resize:none;padding:6px 2px;line-height:1.6;min-height:160px;}
-  /* highlighted readonly text view (shown when searching) */
   .hltext{font-size:16px;color:var(--ink);white-space:pre-wrap;line-height:1.6;padding:6px 2px;background:#fffef9;border-radius:8px;min-height:160px;}
   .divider{height:1px;background:var(--line);margin:10px 0;}
   .tk-list{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
   .tk{display:flex;align-items:center;gap:9px;}
   .tk .cb{flex:0 0 auto;width:22px;height:22px;border-radius:6px;border:2px solid var(--muted);cursor:pointer;display:grid;place-items:center;background:transparent;}
   .tk.done .cb{background:var(--accent);border-color:var(--accent);}
-  .tk.done .cb::after{content:"✓";color:#fff;font-size:13px;}
+  .tk.done .cb::after{content:"\2713";color:#fff;font-size:13px;}
   .tk input.tin{flex:1;border:none;outline:none;background:transparent;font-size:15px;color:var(--ink);font-family:inherit;padding:6px 0;border-bottom:1px solid transparent;}
   .tk input.tin:focus{border-bottom-color:var(--line);}
   .tk.done input.tin{text-decoration:line-through;color:var(--muted);}
@@ -82,22 +104,36 @@
   .ph{position:relative;width:84px;height:84px;border-radius:12px;overflow:hidden;border:1px solid var(--line);}
   .ph img{width:100%;height:100%;object-fit:cover;cursor:zoom-in;}
   .ph .rm{position:absolute;top:3px;inset-inline-start:3px;background:rgba(0,0,0,.6);color:#fff;border:none;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:13px;z-index:2;}
-  /* fullscreen image viewer with zoom */
-  #lightbox{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.94);display:none;overflow:hidden;touch-action:none;}
-  #lightbox.show{display:block;}
-  #lightboxImg{position:absolute;top:50%;left:50%;max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;transform:translate(-50%,-50%) scale(1);transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none;}
-  #lightboxClose{position:fixed;top:16px;inset-inline-end:16px;background:rgba(255,255,255,.18);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;z-index:602;}
-  #lightboxHint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;z-index:602;pointer-events:none;}
   .tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px;}
   .tool{border:1px solid var(--line);background:var(--bg);border-radius:11px;padding:9px 12px;cursor:pointer;font-size:14px;color:var(--ink);display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
   .tool:active{transform:scale(.95);}
   .colors{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
   .swatch{width:30px;height:30px;border-radius:50%;cursor:pointer;border:2px solid rgba(0,0,0,.08);}
   .swatch.sel{box-shadow:0 0 0 3px var(--accent);}
-  .sheet .actions{padding:12px 16px;display:flex;gap:10px;border-top:1px solid var(--line);background:var(--card);flex:0 0 auto;}
+  .selectbox{width:100%;border:1.5px solid var(--line);border-radius:11px;background:#fffef9;padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);outline:none;}
+  .sheet .actions{padding:12px 15px;padding-bottom:calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px;border-top:1px solid var(--line);background:var(--card);flex:0 0 auto;}
   .btn{flex:1;border:none;border-radius:13px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
   .btn.save{background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;}
   .btn.ghost{background:var(--bg);color:var(--ink);border:1px solid var(--line);flex:0 0 auto;width:54px;font-size:18px;}
+  /* small centered dialog */
+  .dlg{position:fixed;inset:0;z-index:300;background:rgba(43,39,34,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;padding:18px;}
+  .dlg.show{display:flex;}
+  .dlg .box{background:var(--card);width:100%;max-width:400px;border-radius:20px;box-shadow:var(--shadow-lg);padding:20px;max-height:86vh;overflow:auto;}
+  .dlg h3{margin:0 0 6px;font-size:18px;font-weight:800;}
+  .dlg .d-sub{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5;}
+  .dlg input{width:100%;border:1.5px solid var(--line);border-radius:12px;background:#fffef9;padding:12px 13px;font-size:16px;font-family:inherit;color:var(--ink);outline:none;margin-bottom:10px;}
+  .dlg input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
+  .dlg .d-err{color:#b23a2a;font-size:13px;min-height:18px;margin-bottom:6px;}
+  .dlg .d-acts{display:flex;gap:9px;margin-top:6px;}
+  .dlg .d-acts button{flex:1;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .d-ok{background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;}
+  .d-cancel{background:var(--bg);color:var(--ink);border:1px solid var(--line)!important;}
+  .d-danger{background:#b23a2a;color:#fff;}
+  .picklist{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+  .pick{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:12px;cursor:pointer;font-size:15px;font-family:inherit;color:var(--ink);text-align:start;}
+  .pick:active{transform:scale(.99);}
+  .pick.cur{border-color:var(--accent);background:var(--accent-soft);}
+  /* bin */
   .bin-item{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px;display:flex;gap:12px;align-items:flex-start;}
   .bin-item .ic{flex:0 0 auto;width:40px;height:40px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:18px;}
   .bin-item .info{flex:1;min-width:0;}
@@ -109,16 +145,18 @@
   .mini.danger{color:#b23a2a;border-color:#e9c4bd;}
   .bin-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
   .bin-head .clearall{margin-inline-start:auto;}
-  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:200;opacity:0;pointer-events:none;transition:.2s;box-shadow:var(--shadow-lg);}
+  .toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:12px;font-size:14px;z-index:400;opacity:0;pointer-events:none;transition:.2s;box-shadow:var(--shadow-lg);max-width:90%;text-align:center;}
   .toast.show{opacity:1;}
   .loading{text-align:center;color:var(--muted);padding:60px 20px;font-size:14px;}
-  /* ---- login gate ---- */
-  #loginGate{position:fixed;inset:0;z-index:500;background:linear-gradient(160deg,#f3efe6,#ece4d4);display:flex;align-items:center;justify-content:center;padding:20px;}
+  .offline-pill{display:none;background:#8a8175;color:#fff;font-size:11px;border-radius:8px;padding:2px 8px;}
+  .offline-pill.show{display:inline-block;}
+  /* login */
+  #loginGate{position:fixed;inset:0;z-index:500;background:linear-gradient(160deg,#f3efe6,#ece4d4);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto;}
   #loginGate.hidden{display:none;}
-  .login-card{background:var(--card);width:100%;max-width:380px;border-radius:22px;box-shadow:var(--shadow-lg);padding:28px 24px;text-align:center;}
-  .login-logo{width:60px;height:60px;border-radius:18px;margin:0 auto 14px;background:linear-gradient(135deg,var(--accent),#e08a4d);display:grid;place-items:center;color:#fff;font-weight:800;font-size:30px;box-shadow:var(--shadow);}
-  .login-card h2{margin:0 0 4px;font-size:22px;font-weight:800;}
-  .login-sub{margin:0 0 20px;font-size:13px;color:var(--muted);}
+  .login-card{background:var(--card);width:100%;max-width:380px;border-radius:22px;box-shadow:var(--shadow-lg);padding:26px 22px;text-align:center;}
+  .login-logo{width:58px;height:58px;border-radius:18px;margin:0 auto 13px;background:linear-gradient(135deg,var(--accent),#e08a4d);display:grid;place-items:center;color:#fff;font-weight:800;font-size:29px;box-shadow:var(--shadow);}
+  .login-card h2{margin:0 0 4px;font-size:21px;font-weight:800;}
+  .login-sub{margin:0 0 18px;font-size:13px;color:var(--muted);}
   .login-in{width:100%;border:1.5px solid var(--line);border-radius:13px;background:#fffdf8;padding:13px 14px;font-size:16px;color:var(--ink);outline:none;font-family:inherit;margin-bottom:11px;}
   .login-in:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);}
   .login-sep{font-size:12px;color:var(--muted);text-align:start;margin:6px 2px 9px;font-weight:600;}
@@ -126,21 +164,28 @@
   .login-btn{width:100%;border:none;border-radius:13px;padding:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--accent),#e08a4d);color:#fff;}
   .login-btn:active{transform:scale(.98);}
   .login-btn:disabled{opacity:.6;}
-  .login-err{color:#b23a2a;font-size:13px;margin-top:12px;min-height:18px;}
+  .login-err{color:#b23a2a;font-size:13px;margin-top:12px;min-height:18px;line-height:1.5;}
+  /* lightbox */
+  #lightbox{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.94);display:none;overflow:hidden;touch-action:none;}
+  #lightbox.show{display:block;}
+  #lightboxImg{position:absolute;top:50%;left:50%;max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;transform:translate(-50%,-50%) scale(1);transform-origin:center center;will-change:transform;user-select:none;-webkit-user-drag:none;}
+  #lightboxClose{position:fixed;top:16px;inset-inline-end:16px;background:rgba(255,255,255,.18);color:#fff;border:none;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;z-index:602;}
+  #lightboxHint{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.6);font-size:12px;z-index:602;pointer-events:none;}
 </style>
 </head>
 <body>
+
 <!-- ===== Login gate ===== -->
 <div id="loginGate">
   <div class="login-card">
     <div class="login-logo">פ</div>
-    <h2 id="loginTitle">הפתקים שלי</h2>
-    <p class="login-sub" id="loginSub">התחבר כדי לגשת לפתקים המוצפנים שלך</p>
+    <h2>הפתקים שלי</h2>
+    <p class="login-sub">התחבר כדי לגשת לפתקים המוצפנים שלך</p>
     <input id="liEmail" class="login-in" type="email" placeholder="אימייל" autocomplete="username">
     <input id="liPass" class="login-in" type="password" placeholder="סיסמת התחברות" autocomplete="current-password">
     <div class="login-sep">🔒 סיסמת הצפנה</div>
     <input id="liEnc" class="login-in" type="password" placeholder="סיסמת הצפנה (נפרדת)" autocomplete="off">
-    <div class="login-hint" id="liHint">סיסמת ההצפנה לא נשמרת בענן — רק במכשיר הזה. רשום אותה במקום בטוח; אם תשכח אותה הפתקים לא ניתנים לשחזור.</div>
+    <div class="login-hint">סיסמת ההצפנה לא נשמרת בענן — רק במכשיר הזה. רשום אותה במקום בטוח; אם תשכח אותה הפתקים לא ניתנים לשחזור.</div>
     <button id="liBtn" class="login-btn">כניסה</button>
     <div class="login-err" id="liErr"></div>
   </div>
@@ -148,35 +193,61 @@
 
 <header>
   <div class="brand">
-    <div class="mark">פ</div>
-    <div><h1>הפתקים שלי</h1><div class="sub" id="syncState">מתחבר…</div></div>
+    <div class="mark" id="brandMark">פ</div>
+    <div style="min-width:0">
+      <h1>הפתקים שלי</h1>
+      <div class="sub"><span id="syncState">מתחבר…</span> <span class="offline-pill" id="offPill">אופליין</span></div>
+    </div>
     <div class="right">
       <button class="icon-btn" id="undoBtn" title="בטל פעולה אחרונה" disabled>↩️</button>
       <button class="icon-btn" id="binBtn" title="סל מיחזור">🗑️<span class="badge" id="binBadge" style="display:none">0</span></button>
-      <button class="icon-btn" id="rekeyBtn" title="החלף סיסמת הצפנה">🔑</button>
-      <button class="icon-btn" id="logoutBtn" title="התנתק">🔓</button>
+      <button class="icon-btn" id="menuBtn" title="תפריט">⋮</button>
     </div>
   </div>
   <div class="search-wrap">
     <span class="si">🔍</span>
-    <input id="search" type="text" placeholder="חיפוש לפי מילה או אות…" autocomplete="off">
+    <input id="search" type="text" placeholder="חיפוש בכל הקבוצות…" autocomplete="off">
     <button class="clear-s" id="clearS">✕</button>
   </div>
   <div class="scount" id="scount"></div>
 </header>
 
 <main>
-  <div id="notesView">
-    <div class="loading" id="loadingMsg">טוען פתקים…</div>
-    <div class="list" id="list"></div>
-    <div class="empty" id="emptyState" style="display:none">
-      <div class="big">📝</div><p><b>אין פתקים עדיין</b></p><p>לחץ על הכפתור הכתום כדי להוסיף פתק</p>
+  <!-- Groups view -->
+  <div id="groupsView">
+    <div class="loading" id="loadingMsg">טוען…</div>
+    <div class="list" id="groupList"></div>
+    <div class="empty" id="groupsEmpty" style="display:none">
+      <div class="big">📁</div><p><b>אין קבוצות</b></p><p>לחץ על + כדי ליצור קבוצה</p>
     </div>
   </div>
+
+  <!-- Notes inside a group -->
+  <div id="notesView" style="display:none">
+    <div class="crumb">
+      <button class="back" id="notesBack">→</button>
+      <div class="nm" id="curGroupName">כללי</div>
+      <div class="cnt" id="curGroupCount"></div>
+    </div>
+    <div class="list" id="noteList"></div>
+    <div class="empty" id="notesEmpty" style="display:none">
+      <div class="big">📝</div><p><b>אין פתקים בקבוצה הזו</b></p><p>לחץ על + כדי להוסיף</p>
+    </div>
+  </div>
+
+  <!-- Search results -->
+  <div id="searchView" style="display:none">
+    <div class="list" id="searchList"></div>
+    <div class="empty" id="searchEmpty" style="display:none">
+      <div class="big">🔍</div><p>לא נמצאו תוצאות</p>
+    </div>
+  </div>
+
+  <!-- Bin -->
   <div id="binView" style="display:none">
     <div class="bin-head">
       <button class="icon-btn" id="binBack">→</button>
-      <div><b style="font-size:18px">סל מיחזור</b><div class="sub" style="font-size:12px;color:var(--muted)">פריטים נמחקים אוטומטית אחרי 30 יום</div></div>
+      <div><b style="font-size:18px">סל מיחזור</b><div style="font-size:12px;color:var(--muted)">פריטים נמחקים אוטומטית אחרי 30 יום</div></div>
       <button class="mini danger clearall" id="clearBin">רוקן הכל</button>
     </div>
     <div id="binList"></div>
@@ -186,6 +257,16 @@
 
 <button class="fab" id="addBtn">+</button>
 
+<!-- selection bar -->
+<div class="selbar" id="selBar">
+  <span class="n" id="selCount">0 נבחרו</span>
+  <span class="sp"></span>
+  <button class="sbtn" id="selAll">בחר הכל</button>
+  <button class="sbtn pri" id="selMove">העבר לקבוצה</button>
+  <button class="sbtn" id="selCancel">ביטול</button>
+</div>
+
+<!-- ===== Note editor ===== -->
 <div class="overlay" id="editor">
   <div class="sheet">
     <div class="top"><span class="t" id="edTitle">פתק חדש</span><button class="icon-btn x" id="edClose">✕</button></div>
@@ -205,6 +286,9 @@
       <input type="file" id="camInput" accept="image/*" capture="environment" hidden>
       <input type="file" id="galInput" accept="image/*" multiple hidden>
       <div class="divider"></div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">קבוצה</div>
+      <select class="selectbox" id="fGroup"></select>
+      <div class="divider"></div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:6px">צבע הפתק</div>
       <div class="colors" id="colors"></div>
     </div>
@@ -215,9 +299,72 @@
   </div>
 </div>
 
+<!-- ===== Dialogs ===== -->
+<div class="dlg" id="dlgGroup">
+  <div class="box">
+    <h3 id="dgTitle">קבוצה חדשה</h3>
+    <div class="d-sub" id="dgSub">תן שם לקבוצה</div>
+    <input id="dgName" type="text" placeholder="שם הקבוצה">
+    <div class="d-err" id="dgErr"></div>
+    <div class="d-acts">
+      <button class="d-cancel" onclick="closeDlg('dlgGroup')">ביטול</button>
+      <button class="d-ok" id="dgOk">שמור</button>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="dlgPick">
+  <div class="box">
+    <h3>העבר לקבוצה</h3>
+    <div class="d-sub" id="dpSub">בחר קבוצת יעד</div>
+    <div class="picklist" id="dpList"></div>
+    <div class="d-acts">
+      <button class="d-cancel" onclick="closeDlg('dlgPick')">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="dlgMenu">
+  <div class="box">
+    <h3 id="dmTitle">תפריט</h3>
+    <div class="d-sub" id="dmSub"></div>
+    <div class="picklist" id="dmList"></div>
+    <div class="d-acts">
+      <button class="d-cancel" onclick="closeDlg('dlgMenu')">סגור</button>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="dlgRekey">
+  <div class="box">
+    <h3>🔑 החלפת סיסמת הצפנה</h3>
+    <div class="d-sub">כל הפתקים יוצפנו מחדש עם הסיסמה החדשה. במכשירים אחרים תצטרך להתחבר מחדש עם הסיסמה החדשה.</div>
+    <input id="rkGuard" type="password" placeholder="סיסמת הגנה (5555)" autocomplete="off">
+    <input id="rkNew1" type="password" placeholder="סיסמת הצפנה חדשה" autocomplete="off">
+    <input id="rkNew2" type="password" placeholder="אימות סיסמה חדשה" autocomplete="off">
+    <div class="d-err" id="rkErr"></div>
+    <div class="d-acts">
+      <button class="d-cancel" onclick="closeDlg('dlgRekey')">ביטול</button>
+      <button class="d-ok" id="rkOk">החלף</button>
+    </div>
+  </div>
+</div>
+
+<div class="dlg" id="dlgConfirm">
+  <div class="box">
+    <h3 id="dcTitle">אישור</h3>
+    <div class="d-sub" id="dcSub"></div>
+    <input id="dcInput" type="password" placeholder="סיסמה" style="display:none">
+    <div class="d-err" id="dcErr"></div>
+    <div class="d-acts">
+      <button class="d-cancel" onclick="closeDlg('dlgConfirm')">ביטול</button>
+      <button class="d-ok" id="dcOk">אישור</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
-<!-- Fullscreen image viewer -->
 <div id="lightbox">
   <img id="lightboxImg" src="" alt="">
   <button id="lightboxClose" onclick="closeLightbox()">✕</button>
@@ -230,8 +377,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script>
 /* =========================================================
-   👇 הדבק כאן את ה-firebaseConfig מהפרויקט שלך
+   הפתקים שלי — גרסה 2.0
    ========================================================= */
+const APP_VERSION="2.0";
+
 const firebaseConfig = {
   apiKey: "AIzaSyBpHkqLiulfcDeiA1WTFMKwhnl690CPjVY",
   authDomain: "notepad-7f83d.firebaseapp.com",
@@ -241,61 +390,120 @@ const firebaseConfig = {
   messagingSenderId: "285718011011",
   appId: "1:285718011011:web:291b51a0da8a76a7d20fb6"
 };
-/* ========================================================= */
 
 const BIN_PASSWORD="5555";
+const HIDDEN_CODE="*\"':";
+const CHECK_PLAIN="NOTEPAD_OK";
+const GENERAL_ID="general";
 const COLORS=[{n:"לבן",c:"#fffdf8"},{n:"אדמדם",c:"#f7dcd0"},{n:"חמרה",c:"#f3e2c7"},{n:"ירקרק",c:"#dceadb"},{n:"תכלת",c:"#d6e6ee"},{n:"סגלגל",c:"#e4dcef"},{n:"ורדרד",c:"#f3d9e2"},{n:"אפרפר",c:"#e6e2da"}];
+const GROUP_ICONS=["#f7dcd0","#f3e2c7","#dceadb","#d6e6ee","#e4dcef","#f3d9e2","#e6e2da"];
 const DAY=86400000,RETAIN=30*DAY,MAX_UNDO=10;
+const ENC_DEVICE_KEY="notepad_enc_pw";
+const LOGIN_DEVICE_KEY="notepad_login_pw";
+const MIRROR_KEY="notepad_mirror";
 
-let db=null,auth=null,notes={},bin={},online=false,editing=null;
-let undoStack=[]; // snapshots: {notes,bin}
-let ENCKEY=null;  // encryption password (in memory only)
-const ENC_DEVICE_KEY="notepad_enc_pw"; // local-only storage of enc password on this device
-const LOGIN_DEVICE_KEY="notepad_login_pw"; // local-only storage of login password on this device
+let db=null,auth=null,online=false;
+let groups={},notes={},bin={};
+let editing=null,undoStack=[],ENCKEY=null;
+let currentGroup=null;      // null = groups view
+let view="groups";          // groups | notes | search | bin
+let selectMode=false,selected=new Set();
+let revealHidden=false;
+let dataStarted=false;
 
-/* ---------- encryption (AES via CryptoJS) ---------- */
-function encStr(plain){
-  if(plain===undefined||plain===null)plain="";
-  try{return "enc:"+CryptoJS.AES.encrypt(String(plain),ENCKEY).toString();}
-  catch(e){return plain;}
+/* ================= encryption ================= */
+function encStr(p){if(p===undefined||p===null)p="";try{return "enc:"+CryptoJS.AES.encrypt(String(p),ENCKEY).toString();}catch(e){return p;}}
+function decStr(v){
+  if(typeof v!=="string")return v;
+  if(!v.startsWith("enc:"))return v;
+  try{return CryptoJS.AES.decrypt(v.slice(4),ENCKEY).toString(CryptoJS.enc.Utf8);}catch(e){return "";}
 }
-function decStr(val){
-  if(typeof val!=="string")return val;
-  if(!val.startsWith("enc:"))return val; // legacy/plain
-  try{
-    const bytes=CryptoJS.AES.decrypt(val.slice(4),ENCKEY);
-    return bytes.toString(CryptoJS.enc.Utf8);
-  }catch(e){return "";}
-}
-/* encrypt a note object for storage */
 function encNote(n){
-  const o={id:n.id,color:n.color,created:n.created,updated:n.updated};
+  const o={id:n.id,groupId:n.groupId||GENERAL_ID,color:n.color,created:n.created,updated:n.updated};
   if(n.deletedAt)o.deletedAt=n.deletedAt;
-  if(n.kind)o.kind=n.kind;
   o.title=encStr(n.title||"");
   o.text=encStr(n.text||"");
   o.tasks=(n.tasks||[]).map(t=>({t:encStr(t.t||""),done:!!t.done}));
-  o.photos=(n.photos||[]).map(p=>encStr(p)); // photos are base64 -> encrypted too
+  o.photos=(n.photos||[]).map(p=>encStr(p));
   return o;
 }
-/* decrypt a note object after loading */
 function decNote(n){
   if(!n)return n;
-  const o={id:n.id,color:n.color,created:n.created,updated:n.updated};
+  const o={id:n.id,groupId:n.groupId||GENERAL_ID,color:n.color,created:n.created,updated:n.updated};
   if(n.deletedAt)o.deletedAt=n.deletedAt;
-  if(n.kind)o.kind=n.kind;
   o.title=decStr(n.title||"");
   o.text=decStr(n.text||"");
   o.tasks=(n.tasks||[]).map(t=>({t:decStr(t.t||""),done:!!t.done}));
   o.photos=(n.photos||[]).map(p=>decStr(p));
   return o;
 }
-function decMap(raw){const out={};Object.keys(raw||{}).forEach(k=>out[k]=decNote(raw[k]));return out;}
-function encMap(map){const out={};Object.keys(map||{}).forEach(k=>out[k]=encNote(map[k]));return out;}
+function encGroup(g){return {id:g.id,name:encStr(g.name||""),hidden:!!g.hidden,created:g.created||Date.now()};}
+function decGroup(g){return {id:g.id,name:decStr(g.name||""),hidden:!!g.hidden,created:g.created||Date.now()};}
+function decNotes(raw){const o={};Object.keys(raw||{}).forEach(k=>o[k]=decNote(raw[k]));return o;}
+function encNotes(m){const o={};Object.keys(m||{}).forEach(k=>o[k]=encNote(m[k]));return o;}
+function decGroups(raw){const o={};Object.keys(raw||{}).forEach(k=>o[k]=decGroup(raw[k]));return o;}
+function encGroups(m){const o={};Object.keys(m||{}).forEach(k=>o[k]=encGroup(m[k]));return o;}
 
-/* ---------- snapshots for undo ---------- */
+/* ================= helpers ================= */
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2400);}
+function fmtDate(ts){return new Date(ts).toLocaleDateString("he-IL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}
+function setState(t){document.getElementById("syncState").textContent=t;}
+function highlight(text,q){
+  text=text||"";if(!q)return esc(text);
+  const lt=text.toLowerCase(),lq=q.toLowerCase();let out="",i=0,idx;
+  while((idx=lt.indexOf(lq,i))!==-1){out+=esc(text.slice(i,idx))+"<mark>"+esc(text.slice(idx,idx+q.length))+"</mark>";i=idx+q.length;}
+  return out+esc(text.slice(i));
+}
+function matches(n,q){
+  if(!q)return true;const lq=q.toLowerCase();
+  return (n.title||"").toLowerCase().includes(lq)||(n.text||"").toLowerCase().includes(lq)||(n.tasks||[]).some(t=>(t.t||"").toLowerCase().includes(lq));
+}
+function findHit(n,q){
+  if(!q)return"";const lq=q.toLowerCase();
+  if((n.text||"").toLowerCase().includes(lq)){
+    const line=(n.text||"").split("\n").find(l=>l.toLowerCase().includes(lq));
+    if(line)return highlight(line.trim(),q);
+  }
+  const tk=(n.tasks||[]).find(t=>(t.t||"").toLowerCase().includes(lq));
+  if(tk)return "☑ "+highlight(tk.t,q);
+  return"";
+}
+function groupName(id){const g=groups[id];return g?g.name:"ללא קבוצה";}
+function groupColor(id){
+  const keys=Object.keys(groups).sort();
+  const i=Math.max(0,keys.indexOf(id));
+  return GROUP_ICONS[i%GROUP_ICONS.length];
+}
+function notesOfGroup(id){return Object.values(notes).filter(n=>(n.groupId||GENERAL_ID)===id);}
+
+/* ================= dialogs ================= */
+function openDlg(id){document.getElementById(id).classList.add("show");}
+function closeDlg(id){document.getElementById(id).classList.remove("show");}
+function confirmDlg(title,sub,onOk,opts){
+  opts=opts||{};
+  document.getElementById("dcTitle").textContent=title;
+  document.getElementById("dcSub").textContent=sub;
+  const inp=document.getElementById("dcInput"),err=document.getElementById("dcErr");
+  err.textContent="";inp.value="";
+  inp.style.display=opts.password?"block":"none";
+  const ok=document.getElementById("dcOk");
+  ok.className=opts.danger?"d-danger":"d-ok";
+  ok.textContent=opts.okText||"אישור";
+  ok.onclick=()=>{
+    if(opts.password){
+      if(inp.value!==opts.password){err.textContent="סיסמה שגויה";return;}
+    }
+    closeDlg("dlgConfirm");onOk();
+  };
+  openDlg("dlgConfirm");
+  if(opts.password)setTimeout(()=>inp.focus(),100);
+}
+
+/* ================= undo ================= */
 function snapshot(){
-  undoStack.push({notes:JSON.parse(JSON.stringify(notes)),bin:JSON.parse(JSON.stringify(bin))});
+  undoStack.push({groups:JSON.parse(JSON.stringify(groups)),notes:JSON.parse(JSON.stringify(notes)),bin:JSON.parse(JSON.stringify(bin))});
   if(undoStack.length>MAX_UNDO)undoStack.shift();
   refreshUndo(true);
 }
@@ -306,24 +514,69 @@ function refreshUndo(flash){
 }
 function doUndo(){
   if(!undoStack.length)return;
-  const prev=undoStack.pop();
-  notes=prev.notes;bin=prev.bin;
-  pushAll();
-  renderNotes();renderBin();updateBinBadge();refreshUndo(false);
+  const p=undoStack.pop();
+  groups=p.groups;notes=p.notes;bin=p.bin;
+  pushAll();renderAll();refreshUndo(false);
   toast("הפעולה בוטלה ↩️");
 }
-/* write whole state back to firebase after an undo (encrypted) */
 function pushAll(){
+  saveMirror();
   if(!online)return;
-  db.ref("notes").set(encMap(notes));
-  db.ref("bin").set(encMap(bin));
+  db.ref("groups").set(encGroups(groups));
+  db.ref("notes").set(encNotes(notes));
+  db.ref("bin").set(encNotes(bin));
 }
 
-/* ---------- LOGIN ---------- */
+/* ================= storage (offline mirror) ================= */
+function saveMirror(){
+  try{
+    localStorage.setItem(MIRROR_KEY,JSON.stringify({g:encGroups(groups),n:encNotes(notes),b:encNotes(bin),t:Date.now()}));
+  }catch(e){console.warn("mirror save failed",e);}
+}
+function loadMirror(){
+  try{
+    const raw=localStorage.getItem(MIRROR_KEY);if(!raw)return false;
+    const m=JSON.parse(raw);
+    groups=decGroups(m.g||{});notes=decNotes(m.n||{});bin=decNotes(m.b||{});
+    return true;
+  }catch(e){return false;}
+}
+/* IndexedDB backup of encryption password (survives history clearing) */
+function idbSaveKey(pw){
+  try{
+    const req=indexedDB.open("notepadKeys",1);
+    req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("k"))d.createObjectStore("k");};
+    req.onsuccess=e=>{const d=e.target.result;try{d.transaction("k","readwrite").objectStore("k").put(pw,"enc");}catch(x){}};
+  }catch(e){}
+}
+function idbLoadKey(){
+  return new Promise(res=>{
+    try{
+      const req=indexedDB.open("notepadKeys",1);
+      req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains("k"))d.createObjectStore("k");};
+      req.onsuccess=e=>{
+        const d=e.target.result;
+        try{
+          const g=d.transaction("k","readonly").objectStore("k").get("enc");
+          g.onsuccess=()=>res(g.result||null);g.onerror=()=>res(null);
+        }catch(x){res(null);}
+      };
+      req.onerror=()=>res(null);
+    }catch(e){res(null);}
+  });
+}
+function idbClearKey(){
+  try{
+    const req=indexedDB.open("notepadKeys",1);
+    req.onsuccess=e=>{const d=e.target.result;try{d.transaction("k","readwrite").objectStore("k").delete("enc");}catch(x){}};
+  }catch(e){}
+}
+
+/* ================= auth / login ================= */
 function showLogin(msg){
   document.getElementById("loginGate").classList.remove("hidden");
-  if(msg)document.getElementById("liErr").textContent=msg;
-  // prefill remembered email + enc password for convenience
+  document.getElementById("liErr").textContent=msg||"";
+  const btn=document.getElementById("liBtn");btn.disabled=false;btn.textContent="כניסה";
   const re=localStorage.getItem("notepad_email");if(re)document.getElementById("liEmail").value=re;
   const rp=localStorage.getItem(ENC_DEVICE_KEY);if(rp)document.getElementById("liEnc").value=rp;
 }
@@ -337,13 +590,21 @@ function doLogin(){
   if(!email||!pass){errEl.textContent="הזן אימייל וסיסמת התחברות";return;}
   if(!enc){errEl.textContent="הזן סיסמת הצפנה";return;}
   const btn=document.getElementById("liBtn");btn.disabled=true;btn.textContent="מתחבר…";
-  ENCKEY=enc;
   auth.signInWithEmailAndPassword(email,pass)
     .then(()=>{
-      localStorage.setItem("notepad_email",email);
-      localStorage.setItem(ENC_DEVICE_KEY,enc); // remember enc pw on this device
-      localStorage.setItem(LOGIN_DEVICE_KEY,pass); // remember login pw on this device only
-      hideLogin();startData();
+      ENCKEY=enc;
+      return verifyKey().then(ok=>{
+        if(!ok){
+          ENCKEY=null;btn.disabled=false;btn.textContent="כניסה";
+          errEl.innerHTML="סיסמת ההצפנה שגויה ❌<br>הפתקים לא ייפתחו איתה. בדוק אותיות גדולות/קטנות ורווחים.";
+          return;
+        }
+        localStorage.setItem("notepad_email",email);
+        localStorage.setItem(ENC_DEVICE_KEY,enc);
+        localStorage.setItem(LOGIN_DEVICE_KEY,pass);
+        idbSaveKey(enc);
+        hideLogin();startData();
+      });
     })
     .catch(e=>{
       ENCKEY=null;btn.disabled=false;btn.textContent="כניסה";
@@ -351,166 +612,366 @@ function doLogin(){
       if(e.code==="auth/invalid-email")m="אימייל לא תקין";
       else if(e.code==="auth/user-not-found"||e.code==="auth/wrong-password"||e.code==="auth/invalid-credential")m="אימייל או סיסמה שגויים";
       else if(e.code==="auth/too-many-requests")m="יותר מדי ניסיונות, נסה מאוחר יותר";
+      else if(e.code==="auth/network-request-failed")m="אין חיבור לאינטרנט";
       errEl.textContent=m;
     });
 }
+/* verify enc password against stored check value */
+function verifyKey(){
+  return new Promise(res=>{
+    if(!online){res(true);return;}
+    db.ref("meta/check").once("value").then(s=>{
+      const v=s.val();
+      if(!v){ db.ref("meta/check").set(encStr(CHECK_PLAIN)); res(true); return; }
+      res(decStr(v)===CHECK_PLAIN);
+    }).catch(()=>res(true));
+  });
+}
 function doLogout(){
-  if(!confirm("להתנתק? תצטרך להזין שוב אימייל וסיסמת הצפנה."))return;
-  localStorage.removeItem(ENC_DEVICE_KEY); // forget enc pw
-  localStorage.removeItem(LOGIN_DEVICE_KEY); // forget login pw
-  auth.signOut().finally(()=>location.reload());
+  confirmDlg("להתנתק?","תצטרך להזין שוב אימייל, סיסמת התחברות וסיסמת הצפנה.",()=>{
+    localStorage.removeItem(ENC_DEVICE_KEY);
+    localStorage.removeItem(LOGIN_DEVICE_KEY);
+    localStorage.removeItem(MIRROR_KEY);
+    idbClearKey();
+    auth.signOut().finally(()=>location.reload());
+  },{danger:true,okText:"התנתק"});
 }
 
-/* ---------- change encryption password (guarded by 5555) ---------- */
-function doRekey(){
-  const guard=prompt("החלפת סיסמת הצפנה.\nהקלד את סיסמת ההגנה לאישור:");
-  if(guard===null)return;
-  if(guard!==BIN_PASSWORD){toast("סיסמה שגויה ❌");return;}
-  if(!online||!ENCKEY||!dataStarted){toast("לא מחובר — נסה שוב אחרי שהנתונים נטענו");return;}
-  const n1=prompt("הזן סיסמת הצפנה חדשה:");
-  if(n1===null)return;
-  if(!n1.trim()){toast("סיסמה ריקה — בוטל");return;}
-  const n2=prompt("הזן שוב את הסיסמה החדשה לאימות:");
-  if(n2===null)return;
-  if(n1!==n2){toast("הסיסמאות לא תואמות ❌");return;}
-  if(!confirm("להחליף את סיסמת ההצפנה?\nכל הפתקים יוצפנו מחדש עם הסיסמה החדשה.\nבמכשירים אחרים תצטרך להתחבר מחדש עם הסיסמה החדשה."))return;
-  ENCKEY=n1;
-  pushAll(); // rewrites notes+bin to Firebase encrypted with the new key
-  localStorage.setItem(ENC_DEVICE_KEY,n1); // remember new enc pw on this device
-  toast("סיסמת ההצפנה הוחלפה ✓");
-}
-
-/* ---------- init ---------- */
+/* ================= init ================= */
 function init(){
   try{
     firebase.initializeApp(firebaseConfig);
-    db=firebase.database();
-    auth=firebase.auth();
+    db=firebase.database();auth=firebase.auth();
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     online=true;
-    auth.onAuthStateChanged(u=>{
+    db.ref(".info/connected").on("value",s=>{
+      const c=s.val()===true;
+      document.getElementById("offPill").classList.toggle("show",!c);
+      if(dataStarted)setState(c?"מסונכרן ומוצפן 🔒":"אופליין — יסתנכרן אוטומטית");
+    });
+    auth.onAuthStateChanged(async u=>{
       if(u){
-        // already authenticated on this device; load enc password silently
-        if(!ENCKEY)ENCKEY=localStorage.getItem(ENC_DEVICE_KEY)||null;
-        if(ENCKEY){ hideLogin(); startData(); }
-        else { showLogin(""); } // enc pw missing (e.g. after logout) -> ask
-      } else {
-        // no Firebase session -> try silent re-login with device-stored creds
+        if(!ENCKEY)ENCKEY=localStorage.getItem(ENC_DEVICE_KEY)||await idbLoadKey();
+        if(ENCKEY){hideLogin();startData();}else showLogin("");
+      }else{
         const e=localStorage.getItem("notepad_email");
         const p=localStorage.getItem(LOGIN_DEVICE_KEY);
-        const k=localStorage.getItem(ENC_DEVICE_KEY);
+        let k=localStorage.getItem(ENC_DEVICE_KEY)||await idbLoadKey();
         if(e&&p&&k){
           ENCKEY=k;
           auth.signInWithEmailAndPassword(e,p).catch(()=>{ENCKEY=null;showLogin("");});
-        } else {
-          showLogin("");
-        }
+        }else showLogin("");
       }
     });
   }catch(e){
-    setState("מצב מקומי (ללא ענן)");online=false;
-    hideLogin();ENCKEY="local";loadLocal();
+    online=false;setState("מצב מקומי");
+    ENCKEY=localStorage.getItem(ENC_DEVICE_KEY)||"local";
+    hideLogin();loadMirror();ensureGeneral();renderAll();
   }
 }
-let dataStarted=false;
 function startData(){
   if(dataStarted)return;dataStarted=true;
   setState("מסונכרן ומוצפן 🔒");
-  db.ref("notes").on("value",s=>{notes=decMap(s.val()||{});renderNotes();},onErr);
-  db.ref("bin").on("value",s=>{bin=decMap(s.val()||{});purgeOld();renderBin();updateBinBadge();},onErr);
+  if(loadMirror()){ensureGeneral();renderAll();}
+  db.ref("groups").on("value",s=>{groups=decGroups(s.val()||{});ensureGeneral();saveMirror();renderAll();},onErr);
+  db.ref("notes").on("value",s=>{notes=decNotes(s.val()||{});migrateNotes();saveMirror();renderAll();},onErr);
+  db.ref("bin").on("value",s=>{bin=decNotes(s.val()||{});purgeOld();saveMirror();renderAll();},onErr);
 }
 function onErr(e){setState("שגיאת חיבור / הרשאה");console.warn(e);}
-function setState(t){document.getElementById("syncState").textContent=t;}
-function loadLocal(){
-  const rawN=JSON.parse(localStorage.getItem("notes")||"{}");
-  const rawB=JSON.parse(localStorage.getItem("bin")||"{}");
-  notes=rawN;bin=rawB;purgeOld();renderNotes();renderBin();updateBinBadge();
-}
-function saveLocal(){if(online)return;localStorage.setItem("notes",JSON.stringify(notes));localStorage.setItem("bin",JSON.stringify(bin));}
-/* write encrypted to firebase */
-function dbSet(p,noteObj){if(online)db.ref(p).set(encNote(noteObj));}
-function dbRemove(p){if(online)db.ref(p).remove();}
-
-/* ---------- helpers ---------- */
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
-function esc(s){return(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
-function fmtDate(ts){return new Date(ts).toLocaleDateString("he-IL",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});}
-function highlight(text,q){text=text||"";if(!q)return esc(text);const lt=text.toLowerCase(),lq=q.toLowerCase();let out="",i=0,idx;while((idx=lt.indexOf(lq,i))!==-1){out+=esc(text.slice(i,idx))+"<mark>"+esc(text.slice(idx,idx+q.length))+"</mark>";i=idx+q.length;}out+=esc(text.slice(i));return out;}
-function matches(n,q){if(!q)return true;const lq=q.toLowerCase();return (n.title||"").toLowerCase().includes(lq)||(n.text||"").toLowerCase().includes(lq)||(n.tasks||[]).some(t=>(t.t||"").toLowerCase().includes(lq));}
-/* find the snippet (line) where q appears, for the collapsed row */
-function findHit(n,q){
-  if(!q)return"";const lq=q.toLowerCase();
-  if((n.text||"").toLowerCase().includes(lq)){
-    const line=(n.text||"").split("\n").find(l=>l.toLowerCase().includes(lq));
-    if(line)return highlight(line.trim(),q);
+function ensureGeneral(){
+  if(!groups[GENERAL_ID]){
+    groups[GENERAL_ID]={id:GENERAL_ID,name:"כללי",hidden:false,created:Date.now()};
+    if(online&&dataStarted)db.ref("groups/"+GENERAL_ID).set(encGroup(groups[GENERAL_ID]));
   }
-  const tk=(n.tasks||[]).find(t=>(t.t||"").toLowerCase().includes(lq));
-  if(tk)return "☑ "+highlight(tk.t,q);
-  return"";
 }
+function migrateNotes(){
+  let changed=false;
+  Object.values(notes).forEach(n=>{
+    if(!n.groupId){n.groupId=GENERAL_ID;changed=true;if(online)db.ref("notes/"+n.id+"/groupId").set(GENERAL_ID);}
+  });
+  if(changed)saveMirror();
+}
+function dbSetNote(path,n){saveMirror();if(online)db.ref(path).set(encNote(n));}
+function dbSetGroup(path,g){saveMirror();if(online)db.ref(path).set(encGroup(g));}
+function dbRemove(p){saveMirror();if(online)db.ref(p).remove();}
 
-/* ---------- render collapsed list ---------- */
-function renderNotes(){
+/* ================= rendering ================= */
+function renderAll(){
   document.getElementById("loadingMsg").style.display="none";
-  const q=document.getElementById("search").value.trim();
-  const arr=Object.values(notes).sort((a,b)=>(b.updated||0)-(a.updated||0));
-  const filtered=arr.filter(n=>matches(n,q));
-  const sc=document.getElementById("scount");
-  if(q){sc.classList.add("show");sc.textContent=filtered.length?`נמצאו ${filtered.length} פתקים — לחץ כדי לפתוח`:"לא נמצאו תוצאות";}else sc.classList.remove("show");
-  document.getElementById("emptyState").style.display=arr.length===0?"block":"none";
-  const L=document.getElementById("list");
-  L.innerHTML=filtered.map(n=>rowHTML(n,q)).join("");
-  L.querySelectorAll(".row").forEach(el=>el.onclick=()=>openEditor(notes[el.dataset.id],q));
-}
-function rowHTML(n,q){
-  const title=n.title?highlight(n.title,q):"";
-  const hasTitle=!!n.title;
-  let shown=title;
-  if(!hasTitle){
-    const first=(n.text||"").split("\n")[0]||(n.tasks&&n.tasks[0]?n.tasks[0].t:"")||"פתק ללא כותרת";
-    shown=highlight(first,q);
+  const q=document.getElementById("search").value;
+  // hidden reveal code
+  if(q===HIDDEN_CODE){
+    if(!revealHidden){revealHidden=true;toast("קבוצות מוסתרות גלויות 👁");}
+    showView("groups");renderGroups("");updateBinBadge();return;
   }
+  const qq=q.trim();
+  if(qq){showView("search");renderSearch(qq);}
+  else if(view==="bin"){renderBin();}
+  else if(currentGroup){showView("notes");renderNotes();}
+  else {showView("groups");renderGroups("");}
+  updateBinBadge();
+}
+function showView(v){
+  view=v;
+  document.getElementById("groupsView").style.display=v==="groups"?"block":"none";
+  document.getElementById("notesView").style.display=v==="notes"?"block":"none";
+  document.getElementById("searchView").style.display=v==="search"?"block":"none";
+  document.getElementById("binView").style.display=v==="bin"?"block":"none";
+  document.getElementById("addBtn").style.display=(v==="bin")?"none":"grid";
+}
+
+/* ---- groups list ---- */
+function renderGroups(){
+  const L=document.getElementById("groupList");
+  let arr=Object.values(groups).sort((a,b)=>{
+    if(a.id===GENERAL_ID)return -1;if(b.id===GENERAL_ID)return 1;
+    return (a.name||"").localeCompare(b.name||"","he");
+  });
+  if(!revealHidden)arr=arr.filter(g=>!g.hidden);
+  document.getElementById("groupsEmpty").style.display=arr.length?"none":"block";
+  L.innerHTML=arr.map(g=>{
+    const cnt=notesOfGroup(g.id).length;
+    return `<div class="row" data-gid="${g.id}">
+      <span class="gicon" style="background:${groupColor(g.id)}">${g.hidden?"🙈":"📁"}</span>
+      <div class="main">
+        <div class="ttl">${esc(g.name)}</div>
+        <div class="meta"><span>${cnt} פתקים</span>${g.hidden?'<span class="gtag">מוסתרת</span>':""}</div>
+      </div>
+      <button class="gmenu" data-menu="${g.id}">⋮</button>
+      <span class="chev">‹</span>
+    </div>`;
+  }).join("");
+  L.querySelectorAll(".row").forEach(el=>{
+    el.onclick=e=>{
+      if(e.target.dataset.menu)return;
+      currentGroup=el.dataset.gid;renderAll();
+    };
+  });
+  L.querySelectorAll("[data-menu]").forEach(b=>b.onclick=e=>{e.stopPropagation();groupMenu(b.dataset.menu);});
+}
+
+/* ---- notes inside group ---- */
+function renderNotes(){
+  const g=groups[currentGroup];
+  document.getElementById("curGroupName").textContent=g?g.name:"קבוצה";
+  const arr=notesOfGroup(currentGroup).sort((a,b)=>(b.updated||0)-(a.updated||0));
+  document.getElementById("curGroupCount").textContent=arr.length+" פתקים";
+  document.getElementById("notesEmpty").style.display=arr.length?"none":"block";
+  const L=document.getElementById("noteList");
+  L.innerHTML=arr.map(n=>rowHTML(n,"",false)).join("");
+  bindNoteRows(L);
+}
+
+/* ---- search across all groups ---- */
+function renderSearch(q){
+  let arr=Object.values(notes).filter(n=>matches(n,q));
+  if(!revealHidden)arr=arr.filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+  arr.sort((a,b)=>(b.updated||0)-(a.updated||0));
+  const sc=document.getElementById("scount");
+  sc.classList.add("show");
+  sc.textContent=arr.length?`נמצאו ${arr.length} פתקים בכל הקבוצות — לחץ כדי לפתוח`:"לא נמצאו תוצאות";
+  document.getElementById("searchEmpty").style.display=arr.length?"none":"block";
+  const L=document.getElementById("searchList");
+  L.innerHTML=arr.map(n=>rowHTML(n,q,true)).join("");
+  bindNoteRows(L,q);
+}
+
+function rowHTML(n,q,showGroup){
+  const hasTitle=!!n.title;
+  let shown=hasTitle?highlight(n.title,q):highlight((n.text||"").split("\n")[0]||(n.tasks&&n.tasks[0]?n.tasks[0].t:"")||"פתק ללא כותרת",q);
   const meta=[];
-  if(n.tasks&&n.tasks.length){const done=n.tasks.filter(t=>t.done).length;meta.push(`<span class="ic">☑ ${done}/${n.tasks.length}</span>`);}
-  if(n.photos&&n.photos.length)meta.push(`<span class="ic">📷 ${n.photos.length}</span>`);
+  if(showGroup)meta.push(`<span class="gtag">📁 ${esc(groupName(n.groupId))}</span>`);
+  if(n.tasks&&n.tasks.length){const d=n.tasks.filter(t=>t.done).length;meta.push(`<span>☑ ${d}/${n.tasks.length}</span>`);}
+  if(n.photos&&n.photos.length)meta.push(`<span>📷 ${n.photos.length}</span>`);
   meta.push(`<span>${fmtDate(n.updated||Date.now())}</span>`);
   const hit=q?findHit(n,q):"";
-  const hitHtml=(hit&&q&&hasTitle)?`<div class="hit">${hit}</div>`:"";
-  return `<div class="row" data-id="${n.id}" style="background:${n.color||'#fffdf8'}">
-    <span class="dot" style="background:${n.color||'#fffdf8'}"></span>
+  const hitHtml=(hit&&hasTitle)?`<div class="hit">${hit}</div>`:"";
+  const isSel=selected.has(n.id);
+  const left=selectMode?`<span class="chk"></span>`:`<span class="dot" style="background:${n.color||'#fffdf8'}"></span>`;
+  return `<div class="row ${isSel?'sel':''}" data-id="${n.id}" style="background:${n.color||'#fffdf8'}">
+    ${left}
     <div class="main">
       <div class="ttl ${hasTitle?'':'empty'}">${shown}</div>
       <div class="meta">${meta.join("")}</div>
       ${hitHtml}
     </div>
-    <span class="chev">‹</span>
+    <span class="chev">${selectMode?"":"‹"}</span>
   </div>`;
 }
+function bindNoteRows(L,q){
+  L.querySelectorAll(".row").forEach(el=>{
+    const id=el.dataset.id;
+    let timer=null,moved=false;
+    const start=()=>{moved=false;timer=setTimeout(()=>{if(!moved){enterSelect(id);}},500);};
+    const cancel=()=>{clearTimeout(timer);};
+    el.addEventListener("touchstart",start,{passive:true});
+    el.addEventListener("touchmove",()=>{moved=true;cancel();},{passive:true});
+    el.addEventListener("touchend",cancel);
+    el.addEventListener("mousedown",start);
+    el.addEventListener("mouseup",cancel);
+    el.addEventListener("mouseleave",cancel);
+    el.onclick=()=>{
+      if(selectMode){toggleSel(id);return;}
+      openEditor(notes[id],q||"");
+    };
+    el.oncontextmenu=e=>{e.preventDefault();enterSelect(id);};
+  });
+}
 
-/* ---------- editor ---------- */
+/* ================= select mode ================= */
+function enterSelect(id){
+  if(!selectMode){selectMode=true;selected.clear();}
+  selected.add(id);
+  document.getElementById("selBar").classList.add("show");
+  updateSelBar();renderAll();
+}
+function toggleSel(id){
+  if(selected.has(id))selected.delete(id);else selected.add(id);
+  if(selected.size===0){exitSelect();return;}
+  updateSelBar();renderAll();
+}
+function exitSelect(){
+  selectMode=false;selected.clear();
+  document.getElementById("selBar").classList.remove("show");
+  renderAll();
+}
+function updateSelBar(){document.getElementById("selCount").textContent=selected.size+" נבחרו";}
+function selectAllVisible(){
+  const q=document.getElementById("search").value.trim();
+  let arr=q?Object.values(notes).filter(n=>matches(n,q)):notesOfGroup(currentGroup);
+  if(!revealHidden)arr=arr.filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+  arr.forEach(n=>selected.add(n.id));
+  if(selected.size)selectMode=true;
+  document.getElementById("selBar").classList.add("show");
+  updateSelBar();renderAll();
+}
+function moveSelected(){
+  if(!selected.size)return;
+  pickGroup("העבר "+selected.size+" פתקים לקבוצה:",gid=>{
+    snapshot();
+    selected.forEach(id=>{
+      if(notes[id]){notes[id].groupId=gid;notes[id].updated=Date.now();dbSetNote("notes/"+id,notes[id]);}
+    });
+    const nm=groupName(gid);
+    exitSelect();toast(`הועברו לקבוצת "${nm}" ✓`);
+  });
+}
+
+/* ================= group management ================= */
+function pickGroup(sub,cb,excludeId){
+  document.getElementById("dpSub").textContent=sub;
+  const L=document.getElementById("dpList");
+  let arr=Object.values(groups).sort((a,b)=>{
+    if(a.id===GENERAL_ID)return -1;if(b.id===GENERAL_ID)return 1;
+    return (a.name||"").localeCompare(b.name||"","he");
+  });
+  if(excludeId)arr=arr.filter(g=>g.id!==excludeId);
+  L.innerHTML=arr.map(g=>`<button class="pick ${g.id===currentGroup?'cur':''}" data-gid="${g.id}">
+      <span class="gicon" style="background:${groupColor(g.id)}">${g.hidden?"🙈":"📁"}</span>
+      <span>${esc(g.name)}</span></button>`).join("");
+  L.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{closeDlg("dlgPick");cb(b.dataset.gid);});
+  openDlg("dlgPick");
+}
+function newGroup(){
+  document.getElementById("dgTitle").textContent="קבוצה חדשה";
+  document.getElementById("dgSub").textContent="תן שם לקבוצה";
+  document.getElementById("dgName").value="";
+  document.getElementById("dgErr").textContent="";
+  document.getElementById("dgOk").onclick=()=>{
+    const nm=document.getElementById("dgName").value.trim();
+    if(!nm){document.getElementById("dgErr").textContent="הזן שם";return;}
+    snapshot();
+    const g={id:uid(),name:nm,hidden:false,created:Date.now()};
+    groups[g.id]=g;dbSetGroup("groups/"+g.id,g);
+    closeDlg("dlgGroup");renderAll();toast("הקבוצה נוצרה ✓");
+  };
+  openDlg("dlgGroup");
+  setTimeout(()=>document.getElementById("dgName").focus(),100);
+}
+function renameGroup(gid){
+  const g=groups[gid];if(!g)return;
+  document.getElementById("dgTitle").textContent="שינוי שם";
+  document.getElementById("dgSub").textContent="שם חדש לקבוצה";
+  document.getElementById("dgName").value=g.name;
+  document.getElementById("dgErr").textContent="";
+  document.getElementById("dgOk").onclick=()=>{
+    const nm=document.getElementById("dgName").value.trim();
+    if(!nm){document.getElementById("dgErr").textContent="הזן שם";return;}
+    snapshot();g.name=nm;dbSetGroup("groups/"+gid,g);
+    closeDlg("dlgGroup");renderAll();toast("השם שונה ✓");
+  };
+  openDlg("dlgGroup");
+}
+function groupMenu(gid){
+  const g=groups[gid];if(!g)return;
+  document.getElementById("dmTitle").textContent=g.name;
+  document.getElementById("dmSub").textContent=notesOfGroup(gid).length+" פתקים בקבוצה";
+  const items=[
+    {t:"✏️ שינוי שם",f:()=>renameGroup(gid)},
+    {t:g.hidden?"👁 בטל הסתרה":"🙈 הסתר קבוצה",f:()=>toggleHide(gid)}
+  ];
+  if(gid!==GENERAL_ID)items.push({t:"🗑️ מחק קבוצה",f:()=>deleteGroup(gid)});
+  const L=document.getElementById("dmList");
+  L.innerHTML=items.map((it,i)=>`<button class="pick" data-i="${i}">${it.t}</button>`).join("");
+  L.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{closeDlg("dlgMenu");items[+b.dataset.i].f();});
+  openDlg("dlgMenu");
+}
+function toggleHide(gid){
+  const g=groups[gid];if(!g)return;
+  if(gid===GENERAL_ID){toast("לא ניתן להסתיר את הקבוצה הראשית");return;}
+  if(!g.hidden){
+    confirmDlg("להסתיר את הקבוצה?",`הקבוצה "${g.name}" תיעלם מהמסך. כדי לראות אותה שוב הקלד בשדה החיפוש: ${HIDDEN_CODE}`,()=>{
+      snapshot();g.hidden=true;dbSetGroup("groups/"+gid,g);renderAll();toast("הקבוצה הוסתרה 🙈");
+    },{okText:"הסתר"});
+  }else{
+    snapshot();g.hidden=false;dbSetGroup("groups/"+gid,g);renderAll();toast("ההסתרה בוטלה ✓");
+  }
+}
+function deleteGroup(gid){
+  const g=groups[gid];if(!g)return;
+  const cnt=notesOfGroup(gid).length;
+  confirmDlg("למחוק את הקבוצה?",
+    cnt?`הקבוצה "${g.name}" תימחק. ${cnt} הפתקים שבה יועברו לקבוצה "כללי" ולא יאבדו.`:`הקבוצה "${g.name}" תימחק.`,
+    ()=>{
+      snapshot();
+      notesOfGroup(gid).forEach(n=>{n.groupId=GENERAL_ID;dbSetNote("notes/"+n.id,n);});
+      delete groups[gid];dbRemove("groups/"+gid);
+      if(currentGroup===gid)currentGroup=null;
+      renderAll();toast("הקבוצה נמחקה");
+    },{danger:true,okText:"מחק"});
+}
+
+/* ================= editor ================= */
 let editorQuery="";
 function openEditor(note,q){
   editorQuery=q||"";
-  editing=note?JSON.parse(JSON.stringify(note)):{id:uid(),title:"",text:"",tasks:[],photos:[],color:"#fffdf8",created:Date.now(),updated:Date.now()};
+  editing=note?JSON.parse(JSON.stringify(note)):{id:uid(),groupId:currentGroup||GENERAL_ID,title:"",text:"",tasks:[],photos:[],color:"#fffdf8",created:Date.now(),updated:Date.now()};
   document.getElementById("edTitle").textContent=note?"עריכת פתק":"פתק חדש";
   document.getElementById("delBtn").style.display=note?"block":"none";
   document.getElementById("fTitle").value=editing.title||"";
   document.getElementById("fText").value=editing.text||"";
   if(!editing.tasks)editing.tasks=[];if(!editing.photos)editing.photos=[];
-  // when searching: show highlighted readonly view of text, tap to edit
   const hl=document.getElementById("hlText"),ta=document.getElementById("fText");
   if(editorQuery&&editing.text&&editing.text.toLowerCase().includes(editorQuery.toLowerCase())){
     hl.style.display="block";ta.style.display="none";
     hl.innerHTML=highlight(editing.text,editorQuery);
     hl.onclick=()=>{hl.style.display="none";ta.style.display="block";autoGrow(ta);ta.focus();};
   }else{hl.style.display="none";ta.style.display="block";}
-  renderTasks();renderPhotos();renderColors();
+  renderGroupSelect();renderTasks();renderPhotos();renderColors();
   document.getElementById("editor").classList.add("show");
   setTimeout(()=>autoGrow(ta),0);
 }
 function autoGrow(ta){ta.style.height="auto";ta.style.height=Math.max(160,ta.scrollHeight)+"px";}
 function closeEditor(){document.getElementById("editor").classList.remove("show");editing=null;editorQuery="";}
+function renderGroupSelect(){
+  const s=document.getElementById("fGroup");
+  const arr=Object.values(groups).sort((a,b)=>{
+    if(a.id===GENERAL_ID)return -1;if(b.id===GENERAL_ID)return 1;
+    return (a.name||"").localeCompare(b.name||"","he");
+  });
+  s.innerHTML=arr.map(g=>`<option value="${g.id}" ${g.id===editing.groupId?"selected":""}>${esc(g.name)}${g.hidden?" (מוסתרת)":""}</option>`).join("");
+  s.onchange=()=>{editing.groupId=s.value;};
+}
 function renderTasks(){
   const w=document.getElementById("tkList");
   w.innerHTML=editing.tasks.map((t,i)=>`<div class="tk ${t.done?'done':''}" data-i="${i}"><button class="cb"></button><input class="tin" value="${esc(t.t)}" placeholder="משימה…"><button class="del">🗑️</button></div>`).join("");
@@ -526,63 +987,22 @@ function renderPhotos(){
   w.querySelectorAll(".rm").forEach(b=>b.onclick=e=>{e.stopPropagation();editing.photos.splice(+b.dataset.i,1);renderPhotos();});
   w.querySelectorAll(".ph img").forEach(im=>im.onclick=()=>openLightbox(editing.photos[+im.dataset.i]));
 }
-/* ---------- lightbox with pinch-zoom + pan + double-tap ---------- */
-let lbScale=1,lbX=0,lbY=0,lbStartDist=0,lbStartScale=1;
-let lbStartX=0,lbStartY=0,lbBaseX=0,lbBaseY=0,lbPanning=false,lbLastTap=0;
-function lbApply(){const img=document.getElementById("lightboxImg");img.style.transform=`translate(calc(-50% + ${lbX}px),calc(-50% + ${lbY}px)) scale(${lbScale})`;}
-function lbReset(){lbScale=1;lbX=0;lbY=0;lbApply();}
-function openLightbox(src){const lb=document.getElementById("lightbox");document.getElementById("lightboxImg").src=src;lb.classList.add("show");lbReset();}
-function closeLightbox(){document.getElementById("lightbox").classList.remove("show");document.getElementById("lightboxImg").src="";}
-function lbDist(t){const dx=t[0].clientX-t[1].clientX,dy=t[0].clientY-t[1].clientY;return Math.hypot(dx,dy);}
-
-function initLightbox(){
-  const lb=document.getElementById("lightbox");
-  const img=document.getElementById("lightboxImg");
-  // close when tapping the dark background (not the image)
-  lb.addEventListener("click",e=>{if(e.target===lb)closeLightbox();});
-
-  img.addEventListener("touchstart",e=>{
-    if(e.touches.length===2){
-      lbStartDist=lbDist(e.touches);lbStartScale=lbScale;e.preventDefault();
-    }else if(e.touches.length===1){
-      const now=Date.now();
-      if(now-lbLastTap<300){ // double tap -> toggle zoom
-        if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}
-        lbLastTap=0;e.preventDefault();return;
-      }
-      lbLastTap=now;
-      if(lbScale>1){lbPanning=true;lbStartX=e.touches[0].clientX;lbStartY=e.touches[0].clientY;lbBaseX=lbX;lbBaseY=lbY;}
-    }
-  },{passive:false});
-
-  img.addEventListener("touchmove",e=>{
-    if(e.touches.length===2){
-      e.preventDefault();
-      const d=lbDist(e.touches);
-      lbScale=Math.min(5,Math.max(1,lbStartScale*(d/lbStartDist)));
-      if(lbScale===1){lbX=0;lbY=0;}
-      lbApply();
-    }else if(e.touches.length===1&&lbPanning&&lbScale>1){
-      e.preventDefault();
-      lbX=lbBaseX+(e.touches[0].clientX-lbStartX);
-      lbY=lbBaseY+(e.touches[0].clientY-lbStartY);
-      lbApply();
-    }
-  },{passive:false});
-
-  img.addEventListener("touchend",e=>{
-    if(e.touches.length===0)lbPanning=false;
-    if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}
-  });
-
-  // desktop: double-click to zoom, wheel to zoom
-  img.addEventListener("dblclick",()=>{if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}});
-  img.addEventListener("wheel",e=>{e.preventDefault();lbScale=Math.min(5,Math.max(1,lbScale-e.deltaY*0.002));if(lbScale===1){lbX=0;lbY=0;}lbApply();},{passive:false});
+function renderColors(){
+  const w=document.getElementById("colors");
+  w.innerHTML=COLORS.map(c=>`<div class="swatch ${editing.color===c.c?'sel':''}" style="background:${c.c}" data-c="${c.c}" title="${c.n}"></div>`).join("");
+  w.querySelectorAll(".swatch").forEach(s=>s.onclick=()=>{editing.color=s.dataset.c;renderColors();});
 }
-initLightbox();
-function renderColors(){const w=document.getElementById("colors");w.innerHTML=COLORS.map(c=>`<div class="swatch ${editing.color===c.c?'sel':''}" style="background:${c.c}" data-c="${c.c}" title="${c.n}"></div>`).join("");w.querySelectorAll(".swatch").forEach(s=>s.onclick=()=>{editing.color=s.dataset.c;renderColors();});}
-function addImage(file){const r=new FileReader();r.onload=e=>{const img=new Image();img.onload=()=>{const max=1400;let{width:w,height:h}=img;if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;}const cv=document.createElement("canvas");cv.width=w;cv.height=h;cv.getContext("2d").drawImage(img,0,0,w,h);editing.photos.push(cv.toDataURL("image/jpeg",0.72));renderPhotos();};img.src=e.target.result;};r.readAsDataURL(file);}
-
+function addImage(file){
+  const r=new FileReader();
+  r.onload=e=>{const img=new Image();img.onload=()=>{
+    const max=1400;let{width:w,height:h}=img;
+    if(w>h&&w>max){h=h*max/w;w=max;}else if(h>max){w=w*max/h;h=max;}
+    const cv=document.createElement("canvas");cv.width=w;cv.height=h;
+    cv.getContext("2d").drawImage(img,0,0,w,h);
+    editing.photos.push(cv.toDataURL("image/jpeg",0.72));renderPhotos();
+  };img.src=e.target.result;};
+  r.readAsDataURL(file);
+}
 function saveNote(){
   editing.title=document.getElementById("fTitle").value.trim();
   editing.text=document.getElementById("fText").value.trim();
@@ -591,59 +1011,201 @@ function saveNote(){
   snapshot();
   editing.updated=Date.now();
   notes[editing.id]=editing;
-  dbSet("notes/"+editing.id,editing);saveLocal();
-  renderNotes();closeEditor();toast("נשמר ✓");
+  dbSetNote("notes/"+editing.id,editing);
+  renderAll();closeEditor();toast("נשמר ✓");
 }
 function deleteNote(){
-  const n=editing;
-  snapshot();
-  closeEditor();
-  n.deletedAt=Date.now();n.kind="note";
+  const n=editing;snapshot();closeEditor();
+  n.deletedAt=Date.now();
   bin[n.id]=n;delete notes[n.id];
-  dbSet("bin/"+n.id,n);dbRemove("notes/"+n.id);
-  saveLocal();renderNotes();updateBinBadge();toast("הועבר לסל המיחזור");
+  dbSetNote("bin/"+n.id,n);dbRemove("notes/"+n.id);
+  renderAll();toast("הועבר לסל המיחזור");
 }
 
-/* ---------- bin ---------- */
-function purgeOld(){const now=Date.now();let ch=false;Object.values(bin).forEach(it=>{if(now-(it.deletedAt||now)>RETAIN){delete bin[it.id];dbRemove("bin/"+it.id);ch=true;}});if(ch)saveLocal();}
-function updateBinBadge(){const n=Object.keys(bin).length,b=document.getElementById("binBadge");if(n>0){b.style.display="grid";b.textContent=n;}else b.style.display="none";}
+/* ================= bin ================= */
+function purgeOld(){
+  const now=Date.now();let ch=false;
+  Object.values(bin).forEach(it=>{if(now-(it.deletedAt||now)>RETAIN){delete bin[it.id];dbRemove("bin/"+it.id);ch=true;}});
+  if(ch)saveMirror();
+}
+function updateBinBadge(){
+  const n=Object.keys(bin).length,b=document.getElementById("binBadge");
+  if(n>0){b.style.display="grid";b.textContent=n;}else b.style.display="none";
+}
 function renderBin(){
+  showView("bin");
   const w=document.getElementById("binList");
   const arr=Object.values(bin).sort((a,b)=>(b.deletedAt||0)-(a.deletedAt||0));
   document.getElementById("binEmpty").style.display=arr.length?"none":"block";
-  w.innerHTML=arr.map(it=>{const left=Math.max(0,Math.ceil((RETAIN-(Date.now()-(it.deletedAt||0)))/DAY));const title=it.title||(it.text?it.text.slice(0,30):"")||(it.tasks&&it.tasks.length?it.tasks[0].t:"")||"פתק ללא כותרת";const pv=it.text||((it.tasks||[]).map(t=>"• "+t.t).join("\n"))||"";return `<div class="bin-item" data-id="${it.id}"><div class="ic">📝</div><div class="info"><b>${esc(title)}</b><div class="d">נמחק ${fmtDate(it.deletedAt)} · נשאר ${left} ימים</div><div class="pv">${esc(pv)}</div></div><div class="acts"><button class="mini restore">↩️ שחזר</button><button class="mini danger del1">מחק</button></div></div>`;}).join("");
-  w.querySelectorAll(".bin-item").forEach(el=>{const id=el.dataset.id;el.querySelector(".restore").onclick=()=>restoreItem(id);el.querySelector(".del1").onclick=()=>delOne(id);});
+  w.innerHTML=arr.map(it=>{
+    const left=Math.max(0,Math.ceil((RETAIN-(Date.now()-(it.deletedAt||0)))/DAY));
+    const title=it.title||(it.text?it.text.slice(0,30):"")||(it.tasks&&it.tasks.length?it.tasks[0].t:"")||"פתק ללא כותרת";
+    const pv=it.text||((it.tasks||[]).map(t=>"• "+t.t).join("\n"))||"";
+    return `<div class="bin-item" data-id="${it.id}"><div class="ic">📝</div><div class="info"><b>${esc(title)}</b><div class="d">נמחק ${fmtDate(it.deletedAt)} · נשאר ${left} ימים · 📁 ${esc(groupName(it.groupId))}</div><div class="pv">${esc(pv)}</div></div><div class="acts"><button class="mini restore">↩️ שחזר</button><button class="mini danger del1">מחק</button></div></div>`;
+  }).join("");
+  w.querySelectorAll(".bin-item").forEach(el=>{
+    const id=el.dataset.id;
+    el.querySelector(".restore").onclick=()=>restoreItem(id);
+    el.querySelector(".del1").onclick=()=>delOne(id);
+  });
 }
-function restoreItem(id){const it=bin[id];if(!it)return;snapshot();delete it.deletedAt;delete it.kind;it.updated=Date.now();notes[id]=it;delete bin[id];dbSet("notes/"+id,it);dbRemove("bin/"+id);saveLocal();renderBin();updateBinBadge();renderNotes();toast("הפתק שוחזר ✓");}
-function delOne(id){if(!confirm("למחוק לצמיתות את הפתק הזה? לא ניתן לשחזר."))return;snapshot();delete bin[id];dbRemove("bin/"+id);saveLocal();renderBin();updateBinBadge();toast("נמחק לצמיתות");}
-function clearBin(){if(!Object.keys(bin).length){toast("הסל כבר ריק");return;}const p=prompt("מחיקת כל סל המיחזור לצמיתות.\nהקלד את הסיסמה לאישור:");if(p===null)return;if(p!==BIN_PASSWORD){toast("סיסמה שגויה ❌");return;}snapshot();bin={};dbRemove("bin");saveLocal();renderBin();updateBinBadge();toast("סל המיחזור רוקן");}
+function restoreItem(id){
+  const it=bin[id];if(!it)return;
+  snapshot();delete it.deletedAt;it.updated=Date.now();
+  if(!groups[it.groupId])it.groupId=GENERAL_ID;
+  notes[id]=it;delete bin[id];
+  dbSetNote("notes/"+id,it);dbRemove("bin/"+id);
+  renderBin();updateBinBadge();toast("הפתק שוחזר ✓");
+}
+function delOne(id){
+  confirmDlg("מחיקה לצמיתות","הפתק יימחק ולא ניתן יהיה לשחזר אותו.",()=>{
+    snapshot();delete bin[id];dbRemove("bin/"+id);
+    renderBin();updateBinBadge();toast("נמחק לצמיתות");
+  },{danger:true,okText:"מחק"});
+}
+function clearBin(){
+  if(!Object.keys(bin).length){toast("הסל כבר ריק");return;}
+  confirmDlg("לרוקן את כל סל המיחזור?","כל הפריטים יימחקו לצמיתות. הקלד את סיסמת ההגנה לאישור.",()=>{
+    snapshot();bin={};dbRemove("bin");
+    renderBin();updateBinBadge();toast("סל המיחזור רוקן");
+  },{danger:true,okText:"רוקן",password:BIN_PASSWORD});
+}
 
-function showBin(){document.getElementById("notesView").style.display="none";document.getElementById("binView").style.display="block";renderBin();}
-function showNotes(){document.getElementById("binView").style.display="none";document.getElementById("notesView").style.display="block";}
+/* ================= rekey ================= */
+function openRekey(){
+  ["rkGuard","rkNew1","rkNew2"].forEach(i=>document.getElementById(i).value="");
+  document.getElementById("rkErr").textContent="";
+  openDlg("dlgRekey");
+}
+function doRekey(){
+  const g=document.getElementById("rkGuard").value;
+  const a=document.getElementById("rkNew1").value;
+  const b=document.getElementById("rkNew2").value;
+  const err=document.getElementById("rkErr");
+  if(g!==BIN_PASSWORD){err.textContent="סיסמת הגנה שגויה";return;}
+  if(!a.trim()){err.textContent="הזן סיסמת הצפנה חדשה";return;}
+  if(a!==b){err.textContent="הסיסמאות אינן תואמות";return;}
+  if(!online||!dataStarted){err.textContent="אין חיבור — נסה שוב מאוחר יותר";return;}
+  ENCKEY=a;
+  pushAll();
+  db.ref("meta/check").set(encStr(CHECK_PLAIN));
+  localStorage.setItem(ENC_DEVICE_KEY,a);
+  idbSaveKey(a);
+  closeDlg("dlgRekey");
+  toast("סיסמת ההצפנה הוחלפה ✓");
+}
 
-/* ---------- events ---------- */
-document.getElementById("addBtn").onclick=()=>openEditor(null,"");
+/* ================= main menu ================= */
+function openMenu(){
+  document.getElementById("dmTitle").textContent="תפריט";
+  document.getElementById("dmSub").textContent="גרסה "+APP_VERSION;
+  const items=[
+    {t:"📁 קבוצה חדשה",f:newGroup},
+    {t:"🔑 החלף סיסמת הצפנה",f:openRekey},
+    {t:"🔄 בדוק עדכון גרסה",f:forceUpdate},
+    {t:"🔓 התנתק",f:doLogout}
+  ];
+  const L=document.getElementById("dmList");
+  L.innerHTML=items.map((it,i)=>`<button class="pick" data-i="${i}">${it.t}</button>`).join("");
+  L.querySelectorAll(".pick").forEach(b=>b.onclick=()=>{closeDlg("dlgMenu");items[+b.dataset.i].f();});
+  openDlg("dlgMenu");
+}
+
+/* ================= lightbox ================= */
+let lbScale=1,lbX=0,lbY=0,lbStartDist=0,lbStartScale=1;
+let lbStartX=0,lbStartY=0,lbBaseX=0,lbBaseY=0,lbPanning=false,lbLastTap=0;
+function lbApply(){document.getElementById("lightboxImg").style.transform=`translate(calc(-50% + ${lbX}px),calc(-50% + ${lbY}px)) scale(${lbScale})`;}
+function lbReset(){lbScale=1;lbX=0;lbY=0;lbApply();}
+function openLightbox(src){document.getElementById("lightboxImg").src=src;document.getElementById("lightbox").classList.add("show");lbReset();}
+function closeLightbox(){document.getElementById("lightbox").classList.remove("show");document.getElementById("lightboxImg").src="";}
+function lbDist(t){return Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);}
+function initLightbox(){
+  const lb=document.getElementById("lightbox"),img=document.getElementById("lightboxImg");
+  lb.addEventListener("click",e=>{if(e.target===lb)closeLightbox();});
+  img.addEventListener("touchstart",e=>{
+    if(e.touches.length===2){lbStartDist=lbDist(e.touches);lbStartScale=lbScale;e.preventDefault();}
+    else if(e.touches.length===1){
+      const now=Date.now();
+      if(now-lbLastTap<300){if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}lbLastTap=0;e.preventDefault();return;}
+      lbLastTap=now;
+      if(lbScale>1){lbPanning=true;lbStartX=e.touches[0].clientX;lbStartY=e.touches[0].clientY;lbBaseX=lbX;lbBaseY=lbY;}
+    }
+  },{passive:false});
+  img.addEventListener("touchmove",e=>{
+    if(e.touches.length===2){e.preventDefault();
+      const d=lbDist(e.touches);lbScale=Math.min(5,Math.max(1,lbStartScale*(d/lbStartDist)));
+      if(lbScale===1){lbX=0;lbY=0;}lbApply();
+    }else if(e.touches.length===1&&lbPanning&&lbScale>1){e.preventDefault();
+      lbX=lbBaseX+(e.touches[0].clientX-lbStartX);lbY=lbBaseY+(e.touches[0].clientY-lbStartY);lbApply();
+    }
+  },{passive:false});
+  img.addEventListener("touchend",e=>{if(e.touches.length===0)lbPanning=false;if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}});
+  img.addEventListener("dblclick",()=>{if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}});
+  img.addEventListener("wheel",e=>{e.preventDefault();lbScale=Math.min(5,Math.max(1,lbScale-e.deltaY*0.002));if(lbScale===1){lbX=0;lbY=0;}lbApply();},{passive:false});
+}
+
+/* ================= service worker / auto update ================= */
+let reloading=false;
+function initSW(){
+  if(!("serviceWorker" in navigator))return;
+  navigator.serviceWorker.register("./sw.js").then(reg=>{
+    reg.update();
+    setInterval(()=>reg.update(),60000);
+  }).catch(e=>console.warn("sw",e));
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{
+    if(reloading)return;reloading=true;location.reload();
+  });
+}
+function forceUpdate(){
+  toast("בודק עדכון…");
+  if("serviceWorker" in navigator){
+    navigator.serviceWorker.getRegistrations().then(rs=>{
+      Promise.all(rs.map(r=>r.update())).then(()=>{
+        setTimeout(()=>{if(!reloading){reloading=true;location.reload();}},1200);
+      });
+    });
+  }else location.reload();
+}
+
+/* ================= events ================= */
+document.getElementById("liBtn").onclick=doLogin;
+document.getElementById("liEnc").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
+document.getElementById("liPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("liEnc").focus();});
+document.getElementById("undoBtn").onclick=doUndo;
+document.getElementById("menuBtn").onclick=openMenu;
+document.getElementById("binBtn").onclick=()=>{document.getElementById("search").value="";document.getElementById("clearS").classList.remove("show");document.getElementById("scount").classList.remove("show");view="bin";renderBin();updateBinBadge();};
+document.getElementById("binBack").onclick=()=>{view=currentGroup?"notes":"groups";renderAll();};
+document.getElementById("clearBin").onclick=clearBin;
+document.getElementById("notesBack").onclick=()=>{currentGroup=null;exitSelect();renderAll();};
+document.getElementById("addBtn").onclick=()=>{
+  if(view==="groups"&&!document.getElementById("search").value.trim())newGroup();
+  else openEditor(null,"");
+};
 document.getElementById("edClose").onclick=closeEditor;
 document.getElementById("saveBtn").onclick=saveNote;
 document.getElementById("delBtn").onclick=deleteNote;
-document.getElementById("undoBtn").onclick=doUndo;
 document.getElementById("addTask").onclick=()=>{editing.tasks.push({t:"",done:false});renderTasks();const ins=document.querySelectorAll("#tkList .tin");if(ins.length)ins[ins.length-1].focus();};
 document.getElementById("camBtn").onclick=()=>document.getElementById("camInput").click();
 document.getElementById("galBtn").onclick=()=>document.getElementById("galInput").click();
 document.getElementById("camInput").onchange=e=>{[...e.target.files].forEach(addImage);e.target.value="";};
 document.getElementById("galInput").onchange=e=>{[...e.target.files].forEach(addImage);e.target.value="";};
-document.getElementById("binBtn").onclick=showBin;
-document.getElementById("binBack").onclick=showNotes;
-document.getElementById("clearBin").onclick=clearBin;
-const sEl=document.getElementById("search"),cs=document.getElementById("clearS");
-sEl.oninput=()=>{cs.classList.toggle("show",sEl.value.length>0);renderNotes();};
-cs.onclick=()=>{sEl.value="";cs.classList.remove("show");renderNotes();sEl.focus();};
 document.getElementById("fText").addEventListener("input",e=>autoGrow(e.target));
-document.getElementById("liBtn").onclick=doLogin;
-document.getElementById("liEnc").addEventListener("keydown",e=>{if(e.key==="Enter")doLogin();});
-document.getElementById("logoutBtn").onclick=doLogout;
-document.getElementById("rekeyBtn").onclick=doRekey;
+document.getElementById("selAll").onclick=selectAllVisible;
+document.getElementById("selMove").onclick=moveSelected;
+document.getElementById("selCancel").onclick=exitSelect;
+document.getElementById("rkOk").onclick=doRekey;
+const sEl=document.getElementById("search"),cs=document.getElementById("clearS");
+sEl.oninput=()=>{
+  cs.classList.toggle("show",sEl.value.length>0);
+  if(!sEl.value.trim()){document.getElementById("scount").classList.remove("show");}
+  if(view==="bin")view=currentGroup?"notes":"groups";
+  renderAll();
+};
+cs.onclick=()=>{sEl.value="";cs.classList.remove("show");document.getElementById("scount").classList.remove("show");renderAll();};
+document.querySelectorAll(".dlg").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.classList.remove("show");}));
 
+initLightbox();
+initSW();
 init();
 </script>
 </body>

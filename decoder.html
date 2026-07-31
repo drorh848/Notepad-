@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>כלי פיענוח — הפתקים שלי</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+  *{box-sizing:border-box;}
+  body{font-family:-apple-system,"Segoe UI",Arial,sans-serif;background:#f3efe6;color:#2b2722;margin:0;padding:18px;line-height:1.5;}
+  .card{max-width:620px;margin:0 auto;background:#fffdf8;border:1px solid #e3dccd;border-radius:18px;padding:20px;box-shadow:0 8px 30px rgba(43,39,34,.1);}
+  h1{font-size:20px;margin:0 0 4px;}
+  .sub{font-size:13px;color:#8a8175;margin-bottom:18px;}
+  label{font-size:13px;font-weight:700;display:block;margin:14px 0 6px;}
+  input,textarea{width:100%;border:1.5px solid #e3dccd;border-radius:11px;padding:11px 12px;font-size:15px;font-family:inherit;background:#fffef9;outline:none;}
+  input:focus,textarea:focus{border-color:#c8632d;}
+  textarea{min-height:120px;resize:vertical;}
+  .btns{display:flex;gap:10px;margin-top:14px;}
+  button{flex:1;border:none;border-radius:12px;padding:13px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .dec{background:#c8632d;color:#fff;}
+  .enc{background:#e6e2da;color:#2b2722;}
+  .out{margin-top:16px;background:#f3efe6;border-radius:12px;padding:13px;white-space:pre-wrap;word-break:break-word;font-size:15px;min-height:40px;}
+  .note{font-size:12px;color:#8a8175;margin-top:16px;line-height:1.6;background:#f3efe6;border-radius:10px;padding:11px;}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🔓 כלי פיענוח / הצפנה</h1>
+  <div class="sub">לשחזור חירום של פתקים מוצפנים מ-Firebase. עובד גם ללא אינטרנט.</div>
+
+  <label>סיסמת הצפנה</label>
+  <input id="pw" type="password" placeholder="הסיסמה שבחרת באפליקציה">
+
+  <label>טקסט (מוצפן לפיענוח / רגיל להצפנה)</label>
+  <textarea id="txt" placeholder="הדבק כאן את הטקסט המוצפן (מתחיל ב-enc:) כדי לפענח, או טקסט רגיל כדי להצפין"></textarea>
+
+  <div class="btns">
+    <button class="dec" onclick="dec()">פענח ▶</button>
+    <button class="enc" onclick="enc()">הצפן</button>
+  </div>
+
+  <label>תוצאה</label>
+  <div class="out" id="out"></div>
+
+  <div class="note">
+    <b>איך משתמשים:</b><br>
+    1. היכנס לקונסולת Firebase → Realtime Database.<br>
+    2. העתק את הערך המוצפן של הפתק (מתחיל ב-<code>enc:</code>).<br>
+    3. הדבק כאן, הזן את סיסמת ההצפנה, ולחץ "פענח".<br><br>
+    הכפתור "הצפן" עושה את הפעולה ההפוכה — להמרת טקסט רגיל לפורמט המוצפן של האפליקציה.
+  </div>
+</div>
+
+<script>
+function key(){const k=document.getElementById("pw").value;if(!k){alert("הזן סיסמת הצפנה");return null;}return k;}
+function dec(){
+  const k=key();if(k===null)return;
+  let v=document.getElementById("txt").value.trim();
+  if(v.startsWith("enc:"))v=v.slice(4);
+  try{
+    const r=CryptoJS.AES.decrypt(v,k).toString(CryptoJS.enc.Utf8);
+    document.getElementById("out").textContent=r||"(פיענוח נכשל — סיסמה שגויה או טקסט לא תקין)";
+  }catch(e){document.getElementById("out").textContent="(שגיאה בפיענוח)";}
+}
+function enc(){
+  const k=key();if(k===null)return;
+  const v=document.getElementById("txt").value;
+  document.getElementById("out").textContent="enc:"+CryptoJS.AES.encrypt(v,k).toString();
+}
+</script>
+</body>
+</html>

@@ -379,7 +379,7 @@
 /* =========================================================
    הפתקים שלי — גרסה 2.0
    ========================================================= */
-const APP_VERSION="2.0";
+const APP_VERSION="2.1";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpHkqLiulfcDeiA1WTFMKwhnl690CPjVY",
@@ -479,6 +479,12 @@ function groupColor(id){
 function notesOfGroup(id){return Object.values(notes).filter(n=>(n.groupId||GENERAL_ID)===id);}
 
 /* ================= dialogs ================= */
+function clearSearchField(){
+  const s=document.getElementById("search");
+  s.value="";
+  document.getElementById("clearS").classList.remove("show");
+  document.getElementById("scount").classList.remove("show");
+}
 function openDlg(id){document.getElementById(id).classList.add("show");}
 function closeDlg(id){document.getElementById(id).classList.remove("show");}
 function confirmDlg(title,sub,onOk,opts){
@@ -699,10 +705,10 @@ function dbRemove(p){saveMirror();if(online)db.ref(p).remove();}
 function renderAll(){
   document.getElementById("loadingMsg").style.display="none";
   const q=document.getElementById("search").value;
-  // hidden reveal code
-  if(q===HIDDEN_CODE){
-    if(!revealHidden){revealHidden=true;toast("קבוצות מוסתרות גלויות 👁");}
-    showView("groups");renderGroups("");updateBinBadge();return;
+  // hidden reveal code (only meaningful on the groups screen)
+  if(q===HIDDEN_CODE&&!currentGroup){
+    if(!revealHidden){revealHidden=true;toast("הקבוצה המוסתרת גלויה 👁 — לחץ כדי להיכנס");}
+    showView("groups");renderGroups();updateBinBadge();return;
   }
   const qq=q.trim();
   if(qq){showView("search");renderSearch(qq);}
@@ -744,7 +750,9 @@ function renderGroups(){
   L.querySelectorAll(".row").forEach(el=>{
     el.onclick=e=>{
       if(e.target.dataset.menu)return;
-      currentGroup=el.dataset.gid;renderAll();
+      currentGroup=el.dataset.gid;
+      clearSearchField();        // so the reveal code / query doesn't block the group view
+      renderAll();
     };
   });
   L.querySelectorAll("[data-menu]").forEach(b=>b.onclick=e=>{e.stopPropagation();groupMenu(b.dataset.menu);});
@@ -764,15 +772,24 @@ function renderNotes(){
 
 /* ---- search across all groups ---- */
 function renderSearch(q){
-  let arr=Object.values(notes).filter(n=>matches(n,q));
-  if(!revealHidden)arr=arr.filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+  let arr,scope;
+  if(currentGroup){
+    // inside a group (including the hidden one) -> search only within it
+    arr=notesOfGroup(currentGroup).filter(n=>matches(n,q));
+    scope=`בקבוצת "${groupName(currentGroup)}"`;
+  }else{
+    // home screen -> search all VISIBLE groups; hidden content never leaks here
+    arr=Object.values(notes).filter(n=>matches(n,q))
+        .filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+    scope="בכל הקבוצות";
+  }
   arr.sort((a,b)=>(b.updated||0)-(a.updated||0));
   const sc=document.getElementById("scount");
   sc.classList.add("show");
-  sc.textContent=arr.length?`נמצאו ${arr.length} פתקים בכל הקבוצות — לחץ כדי לפתוח`:"לא נמצאו תוצאות";
+  sc.textContent=arr.length?`נמצאו ${arr.length} פתקים ${scope} — לחץ כדי לפתוח`:"לא נמצאו תוצאות";
   document.getElementById("searchEmpty").style.display=arr.length?"none":"block";
   const L=document.getElementById("searchList");
-  L.innerHTML=arr.map(n=>rowHTML(n,q,true)).join("");
+  L.innerHTML=arr.map(n=>rowHTML(n,q,!currentGroup)).join("");
   bindNoteRows(L,q);
 }
 
@@ -838,8 +855,14 @@ function exitSelect(){
 function updateSelBar(){document.getElementById("selCount").textContent=selected.size+" נבחרו";}
 function selectAllVisible(){
   const q=document.getElementById("search").value.trim();
-  let arr=q?Object.values(notes).filter(n=>matches(n,q)):notesOfGroup(currentGroup);
-  if(!revealHidden)arr=arr.filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+  let arr;
+  if(currentGroup){
+    arr=notesOfGroup(currentGroup);
+    if(q)arr=arr.filter(n=>matches(n,q));
+  }else{
+    arr=Object.values(notes).filter(n=>{const g=groups[n.groupId];return !(g&&g.hidden);});
+    if(q)arr=arr.filter(n=>matches(n,q));
+  }
   arr.forEach(n=>selected.add(n.id));
   if(selected.size)selectMode=true;
   document.getElementById("selBar").classList.add("show");
@@ -1173,10 +1196,18 @@ document.getElementById("liEnc").addEventListener("keydown",e=>{if(e.key==="Ente
 document.getElementById("liPass").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("liEnc").focus();});
 document.getElementById("undoBtn").onclick=doUndo;
 document.getElementById("menuBtn").onclick=openMenu;
-document.getElementById("binBtn").onclick=()=>{document.getElementById("search").value="";document.getElementById("clearS").classList.remove("show");document.getElementById("scount").classList.remove("show");view="bin";renderBin();updateBinBadge();};
-document.getElementById("binBack").onclick=()=>{view=currentGroup?"notes":"groups";renderAll();};
+document.getElementById("binBtn").onclick=()=>{clearSearchField();view="bin";renderBin();updateBinBadge();};
+document.getElementById("binBack").onclick=()=>{
+  if(!currentGroup)revealHidden=false;
+  view=currentGroup?"notes":"groups";renderAll();
+};
 document.getElementById("clearBin").onclick=clearBin;
-document.getElementById("notesBack").onclick=()=>{currentGroup=null;exitSelect();renderAll();};
+document.getElementById("notesBack").onclick=()=>{
+  currentGroup=null;
+  revealHidden=false;      // hidden group disappears again
+  clearSearchField();      // search returns to visible groups only
+  exitSelect();renderAll();
+};
 document.getElementById("addBtn").onclick=()=>{
   if(view==="groups"&&!document.getElementById("search").value.trim())newGroup();
   else openEditor(null,"");

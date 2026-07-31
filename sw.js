@@ -1,6 +1,6 @@
 /* הפתקים שלי - Service Worker
    בכל העלאת גרסה חדשה: שנה את SW_VERSION והדפדפן יתעדכן לבד */
-const SW_VERSION = "2.0";
+const SW_VERSION = "2.1";
 const CACHE = "notepad-" + SW_VERSION;
 
 const CORE = [

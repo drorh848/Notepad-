@@ -380,7 +380,7 @@
 /* =========================================================
    הפתקים שלי — גרסה 2.0
    ========================================================= */
-const APP_VERSION="2.3";
+const APP_VERSION="2.4";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpHkqLiulfcDeiA1WTFMKwhnl690CPjVY",
@@ -1276,14 +1276,18 @@ function initLightbox(){
   },{passive:false});
   img.addEventListener("touchend",e=>{
     if(e.touches.length===0){
-      // simple tap while not zoomed -> close
-      if(!lbPanning&&lbScale<=1.02&&!lbPinched&&Date.now()-lbTouchStart<250){
-        const now=Date.now();
-        if(now-lbLastTap>=300){          // not part of a double-tap
-          setTimeout(()=>{if(Date.now()-lbLastTap>=290)closeLightbox();},300);
+      const wasTap=!lbPanning&&!lbPinched&&Date.now()-lbTouchStart<250;
+      const atOriginal=lbScale<=1.02;
+      lbPanning=false;lbPinched=false;
+      if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}
+      // close only on a quick tap while the image is at its original size
+      if(wasTap&&atOriginal){
+        const t=Date.now();
+        if(t-lbLastTap>=300){
+          setTimeout(()=>{if(Date.now()-lbLastTap>=290&&lbScale<=1.02)closeLightbox();},300);
         }
       }
-      lbPanning=false;lbPinched=false;
+      return;
     }
     if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}
   });
@@ -1337,16 +1341,28 @@ function handleBack(){
   return false; // let the browser/app actually go back (exit)
 }
 function initBackButton(){
-  // keep one spare history entry so the back press reaches us first
-  history.pushState({nav:true},"");
+  // Keep a deep buffer of history entries so the OS back button always
+  // reaches us instead of leaving the app. The groups screen is the base.
+  const DEPTH=30;
+  let armedDepth=0;
+  function refill(){
+    // top up the buffer so we never run out of entries to consume
+    while(armedDepth<DEPTH){history.pushState({nav:true,i:armedDepth},"");armedDepth++;}
+  }
+  history.replaceState({nav:true,base:true},"");
+  refill();
   window.addEventListener("popstate",()=>{
+    armedDepth=Math.max(0,armedDepth-1);
     const handled=handleBack();
     if(handled){
-      history.pushState({nav:true},"");   // re-arm for the next press
+      refill();                 // consumed one level, restock the buffer
     }else{
-      // second press on the main screen -> really leave
+      // user confirmed exit on the main screen: unwind everything
       exitArmed=false;
-      history.back();
+      const back=armedDepth+2;
+      armedDepth=0;
+      history.go(-back);
+      setTimeout(()=>{try{window.close();}catch(e){}},120);
     }
   });
 }

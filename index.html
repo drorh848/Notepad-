@@ -380,7 +380,7 @@
 /* =========================================================
    הפתקים שלי — גרסה 2.0
    ========================================================= */
-const APP_VERSION="2.2";
+const APP_VERSION="2.3";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpHkqLiulfcDeiA1WTFMKwhnl690CPjVY",
@@ -719,6 +719,7 @@ function renderAll(){
   updateBinBadge();
 }
 function showView(v){
+  exitArmed=false;   // any navigation cancels a pending "press again to exit"
   view=v;
   document.getElementById("groupsView").style.display=v==="groups"?"block":"none";
   document.getElementById("notesView").style.display=v==="notes"?"block":"none";
@@ -1246,6 +1247,7 @@ function openMenu(){
 /* ================= lightbox ================= */
 let lbScale=1,lbX=0,lbY=0,lbStartDist=0,lbStartScale=1;
 let lbStartX=0,lbStartY=0,lbBaseX=0,lbBaseY=0,lbPanning=false,lbLastTap=0;
+let lbPinched=false,lbTouchStart=0;
 function lbApply(){document.getElementById("lightboxImg").style.transform=`translate(calc(-50% + ${lbX}px),calc(-50% + ${lbY}px)) scale(${lbScale})`;}
 function lbReset(){lbScale=1;lbX=0;lbY=0;lbApply();}
 function openLightbox(src){document.getElementById("lightboxImg").src=src;document.getElementById("lightbox").classList.add("show");lbReset();}
@@ -1255,7 +1257,8 @@ function initLightbox(){
   const lb=document.getElementById("lightbox"),img=document.getElementById("lightboxImg");
   lb.addEventListener("click",e=>{if(e.target===lb)closeLightbox();});
   img.addEventListener("touchstart",e=>{
-    if(e.touches.length===2){lbStartDist=lbDist(e.touches);lbStartScale=lbScale;e.preventDefault();}
+    lbTouchStart=Date.now();
+    if(e.touches.length===2){lbStartDist=lbDist(e.touches);lbStartScale=lbScale;lbPinched=true;e.preventDefault();}
     else if(e.touches.length===1){
       const now=Date.now();
       if(now-lbLastTap<300){if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}lbLastTap=0;e.preventDefault();return;}
@@ -1271,11 +1274,82 @@ function initLightbox(){
       lbX=lbBaseX+(e.touches[0].clientX-lbStartX);lbY=lbBaseY+(e.touches[0].clientY-lbStartY);lbApply();
     }
   },{passive:false});
-  img.addEventListener("touchend",e=>{if(e.touches.length===0)lbPanning=false;if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}});
+  img.addEventListener("touchend",e=>{
+    if(e.touches.length===0){
+      // simple tap while not zoomed -> close
+      if(!lbPanning&&lbScale<=1.02&&!lbPinched&&Date.now()-lbTouchStart<250){
+        const now=Date.now();
+        if(now-lbLastTap>=300){          // not part of a double-tap
+          setTimeout(()=>{if(Date.now()-lbLastTap>=290)closeLightbox();},300);
+        }
+      }
+      lbPanning=false;lbPinched=false;
+    }
+    if(lbScale<1.02){lbScale=1;lbX=0;lbY=0;lbApply();}
+  });
+  img.addEventListener("click",e=>{
+    // desktop / mouse: tap image closes when not zoomed
+    if(e.detail===1&&lbScale<=1.02){
+      setTimeout(()=>{if(lbScale<=1.02)closeLightbox();},280);
+    }
+  });
   img.addEventListener("dblclick",()=>{if(lbScale>1)lbReset();else{lbScale=2.5;lbApply();}});
   img.addEventListener("wheel",e=>{e.preventDefault();lbScale=Math.min(5,Math.max(1,lbScale-e.deltaY*0.002));if(lbScale===1){lbX=0;lbY=0;}lbApply();},{passive:false});
 }
 
+/* ================= Android back button ================= */
+let exitArmed=false,exitTimer=null;
+function isOpen(id){const el=document.getElementById(id);return el&&el.classList.contains("show");}
+function openDialogId(){
+  const ids=["dlgConfirm","dlgRekey","dlgMenu","dlgPick","dlgGroup"];
+  return ids.find(id=>isOpen(id))||null;
+}
+/* returns true if something was closed (i.e. we handled the back press) */
+function handleBack(){
+  // 1. fullscreen image
+  if(isOpen("lightbox")){closeLightbox();return true;}
+  // 2. any dialog
+  const d=openDialogId();
+  if(d){closeDlg(d);return true;}
+  // 3. note editor
+  if(isOpen("editor")){closeEditor();return true;}
+  // 4. multi-select mode
+  if(selectMode){exitSelect();return true;}
+  // 5. active search text
+  if(document.getElementById("search").value){clearSearchField();renderAll();return true;}
+  // 6. recycle bin
+  if(view==="bin"){
+    if(!currentGroup)revealHidden=false;
+    view=currentGroup?"notes":"groups";renderAll();return true;
+  }
+  // 7. inside a group -> back to groups
+  if(currentGroup){
+    currentGroup=null;revealHidden=false;clearSearchField();exitSelect();renderAll();return true;
+  }
+  // 8. main screen -> press twice to exit
+  if(!exitArmed){
+    exitArmed=true;
+    toast("לחץ שוב כדי לצאת");
+    clearTimeout(exitTimer);
+    exitTimer=setTimeout(()=>{exitArmed=false;},2000);
+    return true;
+  }
+  return false; // let the browser/app actually go back (exit)
+}
+function initBackButton(){
+  // keep one spare history entry so the back press reaches us first
+  history.pushState({nav:true},"");
+  window.addEventListener("popstate",()=>{
+    const handled=handleBack();
+    if(handled){
+      history.pushState({nav:true},"");   // re-arm for the next press
+    }else{
+      // second press on the main screen -> really leave
+      exitArmed=false;
+      history.back();
+    }
+  });
+}
 /* ================= service worker / auto update ================= */
 let reloading=false;
 function initSW(){
@@ -1346,6 +1420,7 @@ cs.onclick=()=>{sEl.value="";cs.classList.remove("show");document.getElementById
 document.querySelectorAll(".dlg").forEach(d=>d.addEventListener("click",e=>{if(e.target===d)d.classList.remove("show");}));
 
 initLightbox();
+initBackButton();
 initSW();
 init();
 </script>

@@ -380,7 +380,7 @@
 /* =========================================================
    הפתקים שלי — גרסה 2.0
    ========================================================= */
-const APP_VERSION="2.4";
+const APP_VERSION="2.5";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBpHkqLiulfcDeiA1WTFMKwhnl690CPjVY",
@@ -1341,28 +1341,33 @@ function handleBack(){
   return false; // let the browser/app actually go back (exit)
 }
 function initBackButton(){
-  // Keep a deep buffer of history entries so the OS back button always
-  // reaches us instead of leaving the app. The groups screen is the base.
-  const DEPTH=30;
-  let armedDepth=0;
-  function refill(){
-    // top up the buffer so we never run out of entries to consume
-    while(armedDepth<DEPTH){history.pushState({nav:true,i:armedDepth},"");armedDepth++;}
+  // Android throttles rapid pushState calls, so we cannot build a buffer in
+  // one burst. Instead we keep topping it up slowly on a timer, which means
+  // there is always at least one entry waiting for the next back press.
+  const TARGET=12;
+  let depth=0,leaving=false;
+
+  function push1(){
+    try{history.pushState({nav:true,d:depth},"");depth++;return true;}
+    catch(e){return false;}
   }
   history.replaceState({nav:true,base:true},"");
-  refill();
+  push1();
+  // top up one entry at a time, spaced out so the throttle never drops them
+  setInterval(()=>{if(depth<TARGET&&!leaving)push1();},350);
+
   window.addEventListener("popstate",()=>{
-    armedDepth=Math.max(0,armedDepth-1);
+    depth=Math.max(0,depth-1);
+    if(leaving)return;
     const handled=handleBack();
-    if(handled){
-      refill();                 // consumed one level, restock the buffer
-    }else{
-      // user confirmed exit on the main screen: unwind everything
-      exitArmed=false;
-      const back=armedDepth+2;
-      armedDepth=0;
-      history.go(-back);
-      setTimeout(()=>{try{window.close();}catch(e){}},120);
+    push1();                       // immediate re-arm (may be throttled)
+    if(!handled){
+      leaving=true;exitArmed=false;
+      try{window.close();}catch(e){}
+      setTimeout(()=>{
+        if(!document.hidden){try{history.go(-(depth+2));}catch(e){}}
+        leaving=false;
+      },250);
     }
   });
 }
